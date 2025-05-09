@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Crear cuenta paciente</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 1.5rem;
+    }
+
+    .form-box {
+      width: 100%;
+      max-width: 400px;
+    }
+
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 1.5rem;
+      text-align: center;
+      color: #000;
+    }
+
+    input[type="email"],
+    input[type="password"],
+    input[type="text"] {
+      width: 100%;
+      background-color: #eee;
+      border: none;
+      border-radius: 30px;
+      padding: 0.9rem 1rem;
+      font-size: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .checkbox {
+      display: flex;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      color: #888;
+      font-size: 0.9rem;
+    }
+
+    .checkbox input {
+      margin-right: 0.5rem;
+      transform: scale(1.2);
+    }
+
+    .code-validate-group {
+      display: flex;
+      gap: 0.5rem;
+      align-items: stretch;
+      margin-bottom: 1.5rem;
+    }
+
+    .code-validate-group input {
+      flex: 1;
+    }
+
+    .code-validate-group button {
+      padding: 0 1rem;
+      background: none;
+      border: none;
+      font-size: 0.9rem;
+      color: #333;
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 30px;
+      transition: background 0.2s;
+    }
+
+    .code-validate-group button:hover {
+      background-color: #eee;
+    }
+
+    .btn-submit {
+      background-color: #2979ff;
+      color: white;
+      width: 100%;
+      padding: 0.9rem;
+      border: none;
+      border-radius: 30px;
+      font-weight: bold;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-submit:hover {
+      background-color: #1565c0;
+    }
+
+    .bottom-link {
+      text-align: center;
+      margin-top: 1.5rem;
+      font-size: 0.9rem;
+      color: #333;
+    }
+
+    .bottom-link a {
+      color: #2979ff;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .bottom-link a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body data-page="crear-cuenta">
+  <div class="form-box">
+    <h1>Crear cuenta</h1>
+    <form id="frmCrear">
+      <input type="email" name="email" placeholder="E-mail" required />
+      <input type="password" name="pass" placeholder="Contraseña" required />
+      <input type="password" name="repass" placeholder="Repetir contraseña" required />
+
+      <label class="checkbox">
+        <input type="checkbox" required />
+        Acepto la política de privacidad
+      </label>
+
+      <div class="code-validate-group">
+        <input type="text" name="code" placeholder="Código del médico" required />
+        <button type="button">Validar</button>
+      </div>
+
+      <button type="submit" class="btn-submit">Crear cuenta</button>
+    </form>
+
+    <p class="bottom-link">
+      Ya tienes una cuenta? <a href="iniciar-sesion.html">Iniciar sesión</a>
+    </p>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
+
+
+

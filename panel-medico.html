@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Panel Médico</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    .copied {
+      color: #28a745;
+      font-size: 14px;
+      display: none;
+    }
+  </style>
+</head>
+<body data-page="panel-medico">
+  <div class="container">
+    <div class="profile">
+      <img src="doctor-avatar.png" alt="avatar" />
+      <p id="pacienteCount">Cargando pacientes...</p>
+    </div>
+
+    <h2>Invitar paciente</h2>
+    <button id="btnGen" class="btn-primary">Generar código</button>
+
+    <div class="code-box">
+      <p id="codigo">---</p>
+      <button id="btnCopiar" class="btn-link">Copiar</button>
+      <span id="copiado" class="copied">✓ Copiado!</span>
+    </div>
+
+    <h3>Historial de códigos</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Código</th>
+          <th>Fecha</th>
+          <th>Estado</th>
+        </tr>
+      </thead>
+      <tbody id="historial-body">
+        <!-- Se completa dinámicamente -->
+      </tbody>
+    </table>
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    // Mostrar cantidad de pacientes
+    const medico = JSON.parse(localStorage.getItem("logged"));
+    const vinculos = JSON.parse(localStorage.getItem("vinculos") || "[]");
+    const pacientesVinculados = vinculos.filter(v => v.medicoEmail === medico.email && v.estado === "confirmado");
+    document.getElementById("pacienteCount").textContent = `${pacientesVinculados.length} paciente(s) vinculados`;
+
+    // Mostrar historial de códigos
+    const historial = vinculos.filter(v => v.medicoEmail === medico.email);
+    const tbody = document.getElementById("historial-body");
+
+    historial.reverse().forEach(v => {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${v.codigo}</td>
+        <td>${v.fecha || "—"}</td>
+        <td>${v.estado === "confirmado" ? "Vinculado" : "Pendiente"}</td>
+      `;
+      tbody.appendChild(row);
+    });
+
+    // Funcionalidad de copiar y generar código
+    const pCodigo  = document.getElementById("codigo");
+    const btnGen   = document.getElementById("btnGen");
+    const btnCopiar= document.getElementById("btnCopiar");
+    const spanOk   = document.getElementById("copiado");
+
+    btnGen.addEventListener("click", () => {
+      const nuevo = Math.floor(100000 + Math.random() * 900000).toString();
+      pCodigo.textContent = nuevo;
+
+      let vinculos = JSON.parse(localStorage.getItem("vinculos") || "[]");
+      vinculos.push({
+        codigo: nuevo,
+        medicoEmail: medico.email,
+        pacienteEmail: null,
+        estado: "pendiente",
+        fecha: new Date().toLocaleDateString()
+      });
+      localStorage.setItem("vinculos", JSON.stringify(vinculos));
+      location.reload(); // refrescar para actualizar tabla
+    });
+
+    btnCopiar.addEventListener("click", () => {
+      navigator.clipboard.writeText(pCodigo.textContent).then(() => {
+        spanOk.style.display = "inline";
+        setTimeout(() => spanOk.style.display = "none", 1200);
+      });
+    });
+  </script>
+</body>
+</html>
