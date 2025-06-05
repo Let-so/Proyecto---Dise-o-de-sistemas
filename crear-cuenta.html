@@ -53,46 +53,20 @@
       transform: scale(1.2);
     }
 
-    .code-validate-group {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      margin-bottom: 1.5rem;
-    }
-
     .code-validate-group input {
-      flex: 1;
-    }
+  flex: 1;
+  padding: 0.9rem 1rem; /* Añadir este padding para igualar al botón */
+  background-color: #eee;
+  border: none;
+  border-radius: 30px;
+  font-size: 1rem;
+  line-height: 1.2;
+  height: auto; /* por si hay interferencias */
+}
 
     .code-validate-group button {
-      background-color: #2979ff;
-      color: white;
-      border: none;
-      padding: 0.9rem 1.2rem;
-      border-radius: 30px;
-      font-size: 0.9rem;
-      font-weight: bold;
-      cursor: pointer;
-      transition: background 0.2s;
-      white-space: nowrap;
-    }
-
-    .code-validate-group button:hover {
-      background-color: #1565c0;
-    }
-
-    .btn-submit {
-      background-color: #2979ff;
-      color: white;
-      width: 100%;
-      padding: 0.9rem;
-      border: none;
-      border-radius: 30px;
-      font-weight: bold;
-      font-size: 1rem;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
+  height: 100%; /* para que se estire con el input */
+}
 
     .btn-submit:hover {
       background-color: #1565c0;
