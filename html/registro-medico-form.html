@@ -8,22 +8,19 @@
   <style>
     .hidden { display: none; }
 
-    .tab-toggle {
-      margin-top: 1rem;
+    .bottom-link {
       text-align: center;
+      margin-top: 1.5rem;
       font-size: 0.9rem;
+      color: #333;
     }
-
-    .tab-toggle button {
-      background: none;
-      border: none;
+    .bottom-link a {
       color: #3498db;
-      cursor: pointer;
+      text-decoration: none;
       font-weight: bold;
-      padding: 0.4rem;
+      cursor: pointer;
     }
-
-    .tab-toggle button:hover {
+    .bottom-link a:hover {
       text-decoration: underline;
     }
   </style>
@@ -33,7 +30,7 @@
     <h2 id="titulo-form">Registro del Profesional</h2>
 
     <!-- FORMULARIO DE REGISTRO -->
-    <form id="frmMedDatos">
+    <form id="frmMedDatos" class="hidden" onsubmit="redirigirPanel(event)">
       <input type="text" name="nombre" placeholder="Nombre completo" required />
       <input type="email" name="email" placeholder="Correo electrónico" required />
       <input type="tel" name="tel" placeholder="Teléfono" required />
@@ -43,44 +40,57 @@
     </form>
 
     <!-- FORMULARIO DE INICIO DE SESIÓN -->
-    <form id="frmLogin" class="hidden">
+    <form id="frmLogin" class="hidden" onsubmit="redirigirLogin(event)">
       <input type="email" name="email" placeholder="Correo electrónico" required />
       <input type="password" name="pass" placeholder="Contraseña" required />
       <button type="submit" class="btn-primary">Iniciar sesión</button>
     </form>
 
-    <!-- TOGGLE ENTRE FORMULARIOS -->
-    <div class="tab-toggle">
+    <!-- ENLACE PARA TOGGLE -->
+    <p class="bottom-link">
       <span id="toggle-text">¿Ya tenés cuenta?</span>
-      <button id="toggle-btn" type="button">Iniciar sesión</button>
-    </div>
+      <a id="toggle-link">Iniciar sesión</a>
+    </p>
   </div>
 
   <script src="app.js"></script>
   <script>
-    // Alternar entre formulario de registro y login
-    const frmReg = document.getElementById('frmMedDatos');
-    const frmLogin = document.getElementById('frmLogin');
-    const toggleBtn = document.getElementById('toggle-btn');
+    const frmReg     = document.getElementById('frmMedDatos');
+    const frmLogin   = document.getElementById('frmLogin');
+    const toggleLink = document.getElementById('toggle-link');
     const toggleText = document.getElementById('toggle-text');
-    const titulo = document.getElementById('titulo-form');
+    const titulo     = document.getElementById('titulo-form');
 
-    toggleBtn.addEventListener('click', () => {
+    // Alternar entre registro y login
+    toggleLink.addEventListener('click', e => {
+      e.preventDefault();
       const mostrandoRegistro = !frmReg.classList.contains('hidden');
 
       frmReg.classList.toggle('hidden');
       frmLogin.classList.toggle('hidden');
 
       if (mostrandoRegistro) {
-        titulo.textContent = "Iniciar Sesión";
+        titulo.textContent    = "Iniciar Sesión";
         toggleText.textContent = "¿No tenés cuenta?";
-        toggleBtn.textContent = "Registrarse";
+        toggleLink.textContent = "Registrarse";
       } else {
-        titulo.textContent = "Registro del Profesional";
+        titulo.textContent    = "Registro del Profesional";
         toggleText.textContent = "¿Ya tenés cuenta?";
-        toggleBtn.textContent = "Iniciar sesión";
+        toggleLink.textContent = "Iniciar sesión";
       }
     });
+
+    // Redirigir al HTML de login de médico
+    function redirigirLogin(event) {
+      event.preventDefault();
+      window.location.href = "iniciar-sesion-medico.html";
+    }
+
+    function redirigirPanel(event) {
+      event.preventDefault();
+      window.location.href = "panel-medico.html";
+    }
+
   </script>
 </body>
 </html>
