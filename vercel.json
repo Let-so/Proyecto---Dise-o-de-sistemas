@@ -7,10 +7,8 @@
     { "src": "public/js/**/*",   "use": "@vercel/static" }
   ],
   "routes": [
-  { "src": "^/api/(.*)$",       "dest": "/api/$1.js" },
-  { "src": "^/styles\\.css$",   "dest": "/public/styles.css" },
-  { "src": "^/js/(.*)$",        "dest": "/public/js/$1" },
-  { "src": "^/$",               "dest": "/public/html/index.html" },
-  { "src": "^/(.*)$",           "dest": "/public/html/$1" }
-]
+    { "src": "/", "dest": "/html/index.html" },
+    { "src": "/api/(.*)", "dest": "/api/$1.js" },
+    { "src": "/(.*)",     "dest": "/html/$1" }
+  ]
 }
