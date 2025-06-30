@@ -147,6 +147,8 @@ function initMedStep1() {
       toast('No se pudo validar la matrícula. Intenta de nuevo.', false);
     }
   });
+
+
 }
 
 
