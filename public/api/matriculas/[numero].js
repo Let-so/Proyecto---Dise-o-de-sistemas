@@ -1,6 +1,7 @@
 // api/matriculas/[numero].js
 
-import matriculas from '../../../data/matriculas.json';
+import matriculas from '../data.json'
+
 
 export default function handler(req, res) {
   const { numero } = req.query;
