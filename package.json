@@ -1,0 +1,23 @@
+{
+  "name": "sonder-project",
+  "version": "1.0.0",
+  "description": "Link al Drive: \r https://docs.google.com/document/d/1lNj6tSVH0SQldUicDBjXXmPImT1qr-rylwEeEWdYuUM/edit?usp=sharing",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vercel dev"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Let-so/Proyecto---Dise-o-de-sistemas.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Let-so/Proyecto---Dise-o-de-sistemas/issues"
+  },
+  "homepage": "https://github.com/Let-so/Proyecto---Dise-o-de-sistemas#readme",
+  "devDependencies": {
+    "vercel": "^44.2.7"
+  }
+}
