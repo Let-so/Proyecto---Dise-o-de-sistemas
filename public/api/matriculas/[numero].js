@@ -1,31 +1,30 @@
-// api/matriculas/[numero].js
+// public/api/matriculas/[numero].js
 
-import matriculas from '../data.json'
-
+import matriculas from './data.json'  // ⬅ ruta corregida: JSON al mismo nivel
 
 export default function handler(req, res) {
   const { numero } = req.query;
 
-  // Sólo permitimos GET
+  // Sólo GET
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Método no permitido' });
   }
 
-  // Validamos que venga el parámetro
+  // Parámetro obligatorio
   if (!numero) {
     return res.status(400).json({ error: 'Se requiere el número de matrícula' });
   }
 
-  // Hacemos la búsqueda en nuestro stub local
+  // Buscar en el stub
   const registro = matriculas.find(
-    (m) => m.numero.toUpperCase() === String(numero).toUpperCase()
+    m => m.numero.toUpperCase() === String(numero).toUpperCase()
   );
 
   if (!registro) {
     return res.status(404).json({ error: 'Matrícula no encontrada' });
   }
 
-  // Desestructuramos sólo los campos que queremos exponer
+  // Solo le devolvemos los campos que queremos exponer
   const { numero: num, habilitada, nombre, especialidad, entidad_que_emite } = registro;
 
   return res.status(200).json({
@@ -33,7 +32,6 @@ export default function handler(req, res) {
     habilitada,
     nombre,
     especialidad,
-    entidad_que_emite,
+    entidad_que_emite
   });
 }
-
