@@ -100,6 +100,8 @@ function initLogin() {
 // ───────── MÉDICO – VALIDAR MATRÍCULA (solo formato + rango real) ─────────
 function initMedStep1() {
   const form = document.getElementById('frmMatricula');
+  if (!form) return;  // Si no existe el formulario, no hace nada
+
   form.addEventListener('submit', e => {
     e.preventDefault();
 
@@ -111,21 +113,28 @@ function initMedStep1() {
       return toast('Formato de matrícula: MP-12345', false);
     }
 
-    // 2) Validación por rango real de matrículas en Argentina (1–207 475)
-    const numero = parseInt(mat.split('-')[1], 10);
-    if (numero < 1 || numero > 207475) {
-      // número fuera de rango → página de matrícula inválida
-      goto('matricula-invalida.html');
+    // 2) Validación por rango real (1–207 475)
+    const numero = Number(mat.split('-')[1]);
+    if (Number.isNaN(numero) || numero < 1 || numero > 207475) {
+      // Número fuera de rango → página de matrícula inválida
+      window.location.href = '/matricula-invalida.html';
       return;
     }
 
-    // 3) Matrícula válida localmente: la guardamos y avanzamos
+    // 3) Matrícula OK: guardamos y avanzamos
     sessionStorage.setItem('matriculaTmp', mat);
-    goto('registro-medico-form.html');
+    window.location.href = '/registro-medico-form.html';
   });
 }
 
-document.addEventListener('DOMContentLoaded', initMedStep1);
+// Al cargarse el DOM, detecta la página y llama solo al init correspondiente
+document.addEventListener('DOMContentLoaded', () => {
+  const page = document.body.dataset.page;
+  if (page === 'med-step1') {
+    initMedStep1();
+  }
+  // Más inits para otras páginas en el futuro...
+});
 
 
 // ───────── MÉDICO – REGISTRAR DATOS ─────────
