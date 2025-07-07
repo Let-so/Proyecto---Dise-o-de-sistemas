@@ -1,1 +1,6 @@
-.vercel
+# Ignorar credenciales y entornos locales
+.env
+public/Backend/servers/.env
+
+# Ignorar dependencias
+node_modules/
