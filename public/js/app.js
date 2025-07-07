@@ -97,61 +97,35 @@ function initLogin() {
   });
 }
 
-// ───────── MÉDICO – VALIDAR MATRÍCULA (con fetch al endpoint) ─────────
-async function initMedStep1() {
+// ───────── MÉDICO – VALIDAR MATRÍCULA (solo formato + rango real) ─────────
+function initMedStep1() {
   const form = document.getElementById('frmMatricula');
-  form.addEventListener('submit', async e => {
+  form.addEventListener('submit', e => {
     e.preventDefault();
 
-    // 1) Normalizamos el input: quitamos espacios y forzamos mayúsculas
-    const raw = form.matricula.value || '';
-    const mat = raw.trim().toUpperCase();
-    console.log(`Matrícula raw: "${raw}" → trimmed: "${mat}"`);
+    const matRaw = form.matricula.value;
+    const mat    = matRaw.trim().toUpperCase();
 
-    // 2) Validación de formato (ej: MP-12345)
-    const re = /^MP-\d{5}$/;
-    if (!re.test(mat)) {
-      toast('Formato de matrícula inválido (ej: MP-12345)', false);
+    // 1) Validación de formato: MP-12345
+    if (!/^MP-\d{5}$/i.test(mat)) {
+      return toast('Formato de matrícula: MP-12345', false);
+    }
+
+    // 2) Validación por rango real de matrículas en Argentina (1–207 475)
+    const numero = parseInt(mat.split('-')[1], 10);
+    if (numero < 1 || numero > 207475) {
+      // número fuera de rango → página de matrícula inválida
+      goto('matricula-invalida.html');
       return;
     }
 
-    try {
-      // 3) Llamada al endpoint que creaste en /api/matriculas/[numero].js
-      const resp = await fetch(`/api/matriculas/${encodeURIComponent(mat)}`);
-
-      if (resp.status === 404) {
-        // No existe en el stub
-        window.location.href = '/matricula-invalida.html';
-        return;
-      }
-      if (!resp.ok) {
-        throw new Error(`HTTP ${resp.status}`);
-      }
-
-      const data = await resp.json();
-      // data = { numero, habilitada, nombre, especialidad, entidad_que_emite }
-
-      if (!data.habilitada) {
-        // Encontró pero está deshabilitada
-        window.location.href = '/matricula-invalida.html';
-        return;
-      }
-
-      // 4) Matrícula OK: guardamos y seguimos
-      sessionStorage.setItem('matriculaTmp', mat);
-      window.location.href = '/registro-medico-form.html';
-
-    } catch (err) {
-      console.error('Error validando matrícula:', err);
-      toast('No se pudo validar la matrícula. Intenta más tarde.', false);
-    }
+    // 3) Matrícula válida localmente: la guardamos y avanzamos
+    sessionStorage.setItem('matriculaTmp', mat);
+    goto('registro-medico-form.html');
   });
 }
 
-// Arrancamos cuando el DOM esté listo
 document.addEventListener('DOMContentLoaded', initMedStep1);
-
-
 
 
 // ───────── MÉDICO – REGISTRAR DATOS ─────────
