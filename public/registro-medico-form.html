@@ -4,9 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Registro Médico</title>
-   <link rel="stylesheet" href="styles.css" />
-   <link rel="icon" href="/favicon.ico" />
-
+  <link rel="stylesheet" href="/styles.css" />
+  <link rel="icon" href="/favicon.ico" />
 
   <style>
     .hidden { display: none; }
@@ -32,39 +31,41 @@
   <div class="container">
     <h2 id="titulo-form">Registro del Profesional</h2>
 
-    <!-- FORMULARIO DE REGISTRO -->
-    <form id="frmMedDatos" class="hidden" onsubmit="redirigirPanel(event)">
-      <input type="text" name="nombre" placeholder="Nombre completo" required />
-      <input type="email" name="email" placeholder="Correo electrónico" required />
-      <input type="tel" name="tel" placeholder="Teléfono" required />
-      <input type="password" name="pass" placeholder="Contraseña" required />
-      <input type="text" name="esp" placeholder="Especialidad" required />
+    <!-- FORMULARIO DE REGISTRO: visible por defecto -->
+    <form id="frmMedDatos" onsubmit="redirigirPanel(event)">
+      <input type="text"     name="nombre" placeholder="Nombre completo" required />
+      <input type="email"    name="email"  placeholder="Correo electrónico" required />
+      <input type="tel"      name="tel"    placeholder="Teléfono" required />
+      <input type="password" name="pass"   placeholder="Contraseña" required />
+      <input type="text"     name="esp"    placeholder="Especialidad" required />
       <button type="submit" class="btn-primary">Registrarse</button>
     </form>
 
-    <!-- FORMULARIO DE INICIO DE SESIÓN -->
+    <!-- FORMULARIO DE INICIO DE SESIÓN: oculto hasta clicar -->
     <form id="frmLogin" class="hidden" onsubmit="redirigirLogin(event)">
-      <input type="email" name="email" placeholder="Correo electrónico" required />
-      <input type="password" name="pass" placeholder="Contraseña" required />
+      <input type="email"    name="email" placeholder="Correo electrónico" required />
+      <input type="password" name="pass"  placeholder="Contraseña" required />
       <button type="submit" class="btn-primary">Iniciar sesión</button>
     </form>
 
-    <!-- ENLACE PARA TOGGLE -->
+    <!-- ENLACE PARA ALTERNAR entre registro / login -->
     <p class="bottom-link">
       <span id="toggle-text">¿Ya tenés cuenta?</span>
       <a id="toggle-link">Iniciar sesión</a>
     </p>
   </div>
 
-  <script src="/js/app.js"></script>
+  <!-- Incluye tu JS al final para que el DOM ya esté cargado -->
+  <script src="/js/app.js" defer></script>
   <script>
+    // Referencias
     const frmReg     = document.getElementById('frmMedDatos');
     const frmLogin   = document.getElementById('frmLogin');
     const toggleLink = document.getElementById('toggle-link');
     const toggleText = document.getElementById('toggle-text');
     const titulo     = document.getElementById('titulo-form');
 
-    // Alternar entre registro y login
+    // Alternar entre formulario de registro y de login
     toggleLink.addEventListener('click', e => {
       e.preventDefault();
       const mostrandoRegistro = !frmReg.classList.contains('hidden');
@@ -83,17 +84,15 @@
       }
     });
 
-    // Redirigir al HTML de login de médico
+    // Funciones de redirección tras submit
     function redirigirLogin(event) {
       event.preventDefault();
       window.location.href = "iniciar-sesion-medico.html";
     }
-
     function redirigirPanel(event) {
       event.preventDefault();
       window.location.href = "panel-medico.html";
     }
-
   </script>
 </body>
 </html>
