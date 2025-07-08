@@ -19,5 +19,8 @@
   "homepage": "https://github.com/Let-so/Proyecto---Dise-o-de-sistemas#readme",
   "devDependencies": {
     "vercel": "^44.2.7"
+  },
+  "dependencies": {
+    "dotenv": "^17.0.1"
   }
 }
