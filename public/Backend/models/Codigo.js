@@ -1,6 +1,11 @@
 // models/Codigo.js
 import mongoose from 'mongoose';
 
+
+const { MongoClient, ServerApiVersion } = require('mongodb');
+const uri = "mongodb+srv://sosocardozo17:<db_password>@cluster0.krymp7b.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
+
+
 const codigoSchema = new mongoose.Schema({
   _id: String,             // el propio código
   medico_id: mongoose.Types.ObjectId,

@@ -1,4 +1,7 @@
 // server.js
+import dotenv from 'dotenv';
+dotenv.config();           // → lee .env y lo expone en process.env
+
 import express from 'express';
 import mongoose from 'mongoose';
 import Codigo from './models/Codigo.js';
