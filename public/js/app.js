@@ -1,20 +1,4 @@
-// ───────── BASE DE DATOS SIMULADA ─────────
-const db = {
-  get users() {
-    return JSON.parse(localStorage.getItem('users') || '[]');
-  },
-  set users(arr) {
-    localStorage.setItem('users', JSON.stringify(arr));
-  },
-  addUser(user) {
-    const exist = db.users.some(u => u.email === user.email);
-    if (exist) throw new Error('Ya existe un usuario con ese e-mail');
-    db.users = [...db.users, user];
-  },
-  auth(email, pass) {
-    return db.users.find(u => u.email === email && u.pass === pass);
-  }
-};
+
 
 // ───────── UTILITARIOS ─────────
 function goto(url) {
@@ -79,24 +63,51 @@ function initCrearCuenta() {
   });
 }
 
-// ───────── LOGIN ─────────
-function initLogin() {
-  const form = document.getElementById("frmLogin");
-  form.addEventListener("submit", e => {
+// Código para Paciente
+const formP = document.getElementById('iniciarSesionPacienteForm');
+if (formP) {
+  formP.addEventListener('submit', async e => {
     e.preventDefault();
+    const email    = document.getElementById('emailPaciente').value;
+    const password = document.getElementById('passwordPaciente').value;
 
-    const email = form.email.value.trim();
-    const pass = form.pass.value;
-    const user = db.auth(email, pass);
-
-    if (!user) return toast("Credenciales incorrectas", false);
-
-    localStorage.setItem('logged', JSON.stringify(user));
-    if (user.role === "medico") goto("panel-medico.html");
-    else goto("dashboard-paciente.html");
+    const res = await fetch('/api/auth/iniciar-sesion-paciente', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+    const data = await res.json();
+    if (res.ok) {
+      localStorage.setItem('tokenPaciente', data.token);
+      window.location = '/dashboard-paciente.html';
+    } else {
+      alert(data.msg);
+    }
   });
 }
 
+// Código para Médico
+const formM = document.getElementById('iniciarSesionMedicoForm');
+if (formM) {
+  formM.addEventListener('submit', async e => {
+    e.preventDefault();
+    const email    = document.getElementById('emailMedico').value;
+    const password = document.getElementById('passwordMedico').value;
+
+    const res = await fetch('/api/auth/Iniciar-sesion-medico', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+    const data = await res.json();
+    if (res.ok) {
+      localStorage.setItem('tokenMedico', data.token);
+      window.location = '/dashboard-medico.html';
+    } else {
+      alert(data.msg);
+    }
+  });
+}
 // ───────── MÉDICO – VALIDAR MATRÍCULA (solo formato + rango real) ─────────
 function initMedStep1() {
   const form = document.getElementById('frmMatricula');

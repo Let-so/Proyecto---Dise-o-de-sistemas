@@ -1,40 +1,42 @@
-
 // routes/auth.js
 const express = require('express');
-const bcrypt = require('bcryptjs');
+const bcrypt  = require('bcryptjs');
+const jwt     = require('jsonwebtoken');
+const path    = require('path');
+const User    = require(path.join(__dirname, '..', 'models', 'User'));
+
 const router = express.Router();
-const path = require('path');
-const User = require(path.join(__dirname, '..', '..', 'models', 'User'));
-// …
 
+async function doLogin(req, res, expectedRole) {
+  const { email, password } = req.body;
+  const user = await User.findOne({ email });
+  if (!user) 
+    return res.status(400).json({ msg: 'Usuario no encontrado' });
+  if (user.role !== expectedRole) 
+    return res.status(403).json({ msg: `No es un ${expectedRole}` });
 
-// POST /api/auth/register
-router.post('/register', async (req, res) => {
-  try {
-    const { nombre, email, password } = req.body;
+  const ok = await bcrypt.compare(password, user.password);
+  if (!ok) 
+    return res.status(400).json({ msg: 'Contraseña incorrecta' });
 
-    // 1) Validar que no exista ya un usuario con ese email
-    const existe = await User.findOne({ email });
-    if (existe) return res.status(400).json({ msg: 'Email ya registrado' });
+  const payload = { id: user._id, nombre: user.nombre, role: user.role };
+  const token   = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '2h' });
+  res.json({ token });
+}
 
-    // 2) Hashear la contraseña
-    const salt     = await bcrypt.genSalt(10);
-    const hashPass = await bcrypt.hash(password, salt);
-
-    // 3) Crear y guardar el nuevo usuario
-    const nuevoUsuario = new User({
-      nombre,
-      email,
-      password: hashPass
-    });
-    await nuevoUsuario.save();
-
-    // 4) Responder OK (podrías devolver un token JWT aquí)
-    res.status(201).json({ msg: 'Usuario registrado con éxito' });
-  } catch (err) {
+// POST /api/auth/iniciar-sesion-paciente
+router.post('/iniciar-sesion-paciente', (req, res) => {
+  doLogin(req, res, 'paciente').catch(err => {
     console.error(err);
-    res.status(500).json({ msg: 'Error en el servidor' });
-  }
+    res.status(500).json({ msg: 'Error de servidor' });
+  });
 });
 
+// POST /api/auth/iniciar-sesion-medico
+router.post('/Iniciar-sesion-medico', (req, res) => {
+  doLogin(req, res, 'medico').catch(err => {
+    console.error(err);
+    res.status(500).json({ msg: 'Error de servidor' });
+  });
+});
 module.exports = router;

@@ -1,5 +1,7 @@
 
 // index.js
+const path = require('path');
+app.use(express.static(path.join(__dirname, 'public')));
 require('dotenv').config();
 console.log('URI leída:', process.env.MONGO_URI); 
 const express = require('express');
