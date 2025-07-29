@@ -4,7 +4,7 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const router = express.Router();
 const path = require('path');
-const User = require(path.join(__dirname, '..', 'models', 'User'));
+const User = require(path.join(__dirname, '..', '..', 'models', 'User'));
 // …
 
 
