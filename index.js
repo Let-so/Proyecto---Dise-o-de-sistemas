@@ -1,6 +1,7 @@
 
 // index.js
 require('dotenv').config();
+console.log('URI leída:', process.env.MONGO_URI); 
 const express = require('express');
 const mongoose = require('mongoose');
 
