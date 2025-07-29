@@ -2,8 +2,11 @@
 // routes/auth.js
 const express = require('express');
 const bcrypt = require('bcryptjs');
-const User   = require('../models/User');
 const router = express.Router();
+const path = require('path');
+const User = require(path.join(__dirname, '..', 'models', 'User'));
+// …
+
 
 // POST /api/auth/register
 router.post('/register', async (req, res) => {

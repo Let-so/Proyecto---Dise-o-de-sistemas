@@ -4,6 +4,7 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 
+
 const app = express();
 app.use(express.json()); // para leer JSON del body
 
@@ -16,7 +17,7 @@ mongoose.connect(process.env.MONGO_URI, {
 .catch(err => console.error('✖ Error al conectar:', err));
 
 // 2) Importar rutas de usuario
-const authRouter = require('./routes/auth');
+const authRouter = require('./public/routes/auth');
 app.use('/api/auth', authRouter);
 
 // 3) Levantar servidor
