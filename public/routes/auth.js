@@ -39,4 +39,33 @@ router.post('/Iniciar-sesion-medico', (req, res) => {
     res.status(500).json({ msg: 'Error de servidor' });
   });
 });
+
+// Regex y rango
+const REGEX = /^MP-(\d{5})$/i;
+const MIN   = 1;
+const MAX   = 207475;
+
+// GET /api/medico/validar-matricula?matricula=MP-12345
+router.get('/validar-matricula', (req, res) => {
+  const m = req.query.matricula;
+  if (!m) {
+    return res.status(400).json({ ok: false, msg: 'Falta parámetro matricula' });
+  }
+
+  const match = REGEX.exec(m.trim());
+  if (!match) {
+    return res.status(422).json({ ok: false, msg: 'Formato inválido. Debe ser MP-12345' });
+  }
+
+  const num = Number(match[1]);
+  if (num < MIN || num > MAX) {
+    return res.status(422).json({
+      ok: false,
+      msg: `Número fuera de rango (${MIN}–${MAX})`
+    });
+  }
+
+  // OK
+  return res.json({ ok: true, msg: 'Matrícula válida', matricula: match[0] });
+});
 module.exports = router;

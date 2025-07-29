@@ -21,6 +21,7 @@ mongoose.connect(process.env.MONGO_URI, {
 
 // 2) Importar rutas de usuario
 const authRouter = require('./public/routes/auth');
+app.use('/api/medico', require('./routes/medico'));
 app.use('/api/auth', authRouter);
 
 // 3) Levantar servidor
