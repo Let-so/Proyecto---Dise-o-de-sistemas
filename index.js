@@ -24,7 +24,7 @@ mongoose
 
 // 5) Rutas de tu API
 // Asegúrate de que auth.js esté en ./routes/auth.js
-app.use('/api/medico', require('./routes/medico'));
+//app.use('/api/medico', require('./routes/medico'));
 app.use('/api/auth',   require('./routes/auth'));
 
 // 6) Levantar servidor
