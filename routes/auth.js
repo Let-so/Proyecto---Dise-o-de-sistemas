@@ -24,6 +24,20 @@ async function doLogin(req, res, expectedRole) {
   res.json({ token });
 }
 
+// POST /api/auth/register-paciente
+router.post('/register-paciente', async (req, res) => {
+  const { nombre, email, password } = req.body;
+  const hash = await bcrypt.hash(password, 10);
+  const user = new User({ nombre, email, password: hash, role: 'paciente' });
+  try {
+    await user.save();
+    res.status(201).json({ msg: 'Usuario registrado' });
+  } catch (e) {
+    res.status(400).json({ msg: e.message });
+  }
+});
+
+
 // POST /api/auth/iniciar-sesion-paciente
 router.post('/iniciar-sesion-paciente', (req, res) => {
   doLogin(req, res, 'paciente').catch(err => {
