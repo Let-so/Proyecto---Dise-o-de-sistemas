@@ -3,7 +3,7 @@ const express = require('express');
 const bcrypt  = require('bcryptjs');
 const jwt     = require('jsonwebtoken');
 const path    = require('path');
-const User    = require(path.join(__dirname, '..', 'models', 'User'));
+const user    = require(path.join(__dirname, '..', 'models', 'User'));
 
 const router = express.Router();
 
@@ -32,6 +32,47 @@ router.post('/register-paciente', async (req, res) => {
   try {
     await user.save();
     res.status(201).json({ msg: 'Usuario registrado' });
+  } catch (e) {
+    res.status(400).json({ msg: e.message });
+  }
+});
+
+const User = require(path.join(__dirname, '..', 'models', 'User'));
+
+// POST /api/auth/register-medico
+router.post('/register-medico', async (req, res) => {
+  const { 
+    nombre, 
+    email, 
+    password, 
+    tel, 
+    esp, 
+    matricula 
+  } = req.body;
+
+  // 1) Validar que vengan todos los campos
+  if (!nombre || !email || !password || !tel || !esp || !matricula) {
+    return res.status(400).json({ msg: 'Faltan datos obligatorios' });
+  }
+
+  // 2) Hashear la contraseña
+  const hash = await bcrypt.hash(password, 10);
+
+  // 3) Crear el usuario con rol 'medico'
+  const user = new User({
+    nombre,
+    email,
+    password: hash,
+    role: 'medico',
+    tel,
+    esp,
+    matricula
+  });
+
+  // 4) Guardar y responder
+  try {
+    await user.save();
+    res.status(201).json({ msg: 'Médico registrado con éxito' });
   } catch (e) {
     res.status(400).json({ msg: e.message });
   }
