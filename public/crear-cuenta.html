@@ -38,35 +38,35 @@
       Ya tenés una cuenta? <a href="iniciar-sesion-paciente.html">Iniciar sesión</a>
     </p>
   </div>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const btnVal    = document.getElementById('btnValidate');
+    const btnSub    = document.getElementById('btnSubmit');
+    const inputCode = document.getElementById('code');
 
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const btnVal   = document.getElementById('btnValidate');
-      const btnSub   = document.getElementById('btnSubmit');
-      const inputCode= document.getElementById('code');
+    btnVal.addEventListener('click', async () => {
+      const code = inputCode.value.trim();
+      if (!code) return alert('Ingresá un código');
 
-      btnVal.addEventListener('click', async () => {
-        const code = inputCode.value.trim();
-        if (!code) return alert('Ingresá un código');
-        
-        try {
-          const res = await fetch(`http://localhost:3001/codigos/${code}`);
-          const data = await res.json();
+      try {
+        // ← Aquí cambias localhost:3001 por ruta relativa
+        const res  = await fetch(`/codigos/${code}`);
+        const data = await res.json();
 
-          if (res.ok && data.valido) {
-            alert('Código válido. Ya podés crear tu cuenta');
-            btnSub.disabled = false;       // habilita el submit
-            btnVal.textContent = '✅ Validado';
-            inputCode.readOnly = true;     // bloquea cambios
-          } else {
-            alert(data.mensaje || 'Código inválido');
-          }
-        } catch (err) {
-          console.error(err);
-          alert('Error de conexión. Intentá de nuevo');
+        if (res.ok && data.valido) {
+          alert('Código válido. Ya podés crear tu cuenta');
+          btnSub.disabled    = false;
+          btnVal.textContent = '✅ Validado';
+          inputCode.readOnly = true;
+        } else {
+          alert(data.mensaje || 'Código inválido');
         }
-      });
+      } catch (err) {
+        console.error(err);
+        alert('Error de conexión. Intentá de nuevo');
+      }
     });
-  </script>
+  });
+</script>
 </body>
 </html>
