@@ -24,9 +24,12 @@ async function doLogin(req, res, expectedRole) {
   res.json({ token });
 }
 
-// POST /api/auth/register-paciente
+// ───────── REGISTRO PACIENTE ─────────
 router.post('/register-paciente', async (req, res) => {
   const { nombre, email, password } = req.body;
+  if (!nombre || !email || !password) {
+    return res.status(400).json({ msg: 'Faltan campos obligatorios' });
+  }
   const hash = await bcrypt.hash(password, 10);
   const user = new User({ nombre, email, password: hash, role: 'paciente' });
   try {
@@ -37,39 +40,17 @@ router.post('/register-paciente', async (req, res) => {
   }
 });
 
-const User = require(path.join(__dirname, '..', 'models', 'User'));
-
-// POST /api/auth/register-medico
+// ───────── REGISTRO MÉDICO ─────────
 router.post('/register-medico', async (req, res) => {
-  const { 
-    nombre, 
-    email, 
-    password, 
-    tel, 
-    esp, 
-    matricula 
-  } = req.body;
-
-  // 1) Validar que vengan todos los campos
+  const { nombre, email, password, tel, esp, matricula } = req.body;
   if (!nombre || !email || !password || !tel || !esp || !matricula) {
     return res.status(400).json({ msg: 'Faltan datos obligatorios' });
   }
-
-  // 2) Hashear la contraseña
   const hash = await bcrypt.hash(password, 10);
-
-  // 3) Crear el usuario con rol 'medico'
   const user = new User({
-    nombre,
-    email,
-    password: hash,
-    role: 'medico',
-    tel,
-    esp,
-    matricula
+    nombre, email, password: hash,
+    role: 'medico', tel, esp, matricula
   });
-
-  // 4) Guardar y responder
   try {
     await user.save();
     res.status(201).json({ msg: 'Médico registrado con éxito' });
@@ -78,8 +59,7 @@ router.post('/register-medico', async (req, res) => {
   }
 });
 
-
-// POST /api/auth/iniciar-sesion-paciente
+// ───────── LOGIN PACIENTE ─────────
 router.post('/iniciar-sesion-paciente', (req, res) => {
   doLogin(req, res, 'paciente').catch(err => {
     console.error(err);
@@ -87,8 +67,8 @@ router.post('/iniciar-sesion-paciente', (req, res) => {
   });
 });
 
-// POST /api/auth/iniciar-sesion-medico
-router.post('/Iniciar-sesion-medico', (req, res) => {
+// ───────── LOGIN MÉDICO ─────────
+router.post('/Iniciar-sesion-medico', (req, res) => {  // ruta en minúsculas
   doLogin(req, res, 'medico').catch(err => {
     console.error(err);
     res.status(500).json({ msg: 'Error de servidor' });
@@ -100,7 +80,6 @@ const REGEX = /^MP-(\d{5})$/i;
 const MIN   = 1;
 const MAX   = 207475;
 
-// GET /api/auth/validar-matricula?matricula=MP-12345
 router.get('/validar-matricula', (req, res) => {
   const m = req.query.matricula;
   if (!m) return res.status(400).json({ ok: false, msg: 'Falta parámetro matricula' });
