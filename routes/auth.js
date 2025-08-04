@@ -6,6 +6,7 @@ const path       = require('path');
 const User       = require(path.join(__dirname, '..', 'models', 'User'));
 const Invitation = require(path.join(__dirname, '..', 'models', 'Invitation'));
 
+
 const router = express.Router();
 
 async function doLogin(req, res, expectedRole) {
@@ -26,20 +27,36 @@ async function doLogin(req, res, expectedRole) {
   res.json({ token });
 }
 
-// ───────── REGISTRO PACIENTE ─────────
 router.post('/register-paciente', async (req, res) => {
-  const { nombre, email, password } = req.body;
-  if (!nombre || !email || !password) {
-    return res.status(400).json({ msg: 'Faltan campos obligatorios' });
-  }
-  const hash = await bcrypt.hash(password, 10);
-  const user = new User({ nombre, email, password: hash, role: 'paciente' });
-  try {
-    await user.save();
-    res.status(201).json({ msg: 'Usuario registrado' });
-  } catch (e) {
-    res.status(400).json({ msg: e.message });
-  }
+  const { nombre, email, password, code } = req.body;
+
+  // 1) Crear y guardar paciente
+  const hash     = await bcrypt.hash(password, 10);
+  const paciente = new User({
+    nombre,
+    email,
+    password: hash,
+    role: 'paciente',
+    codeVinculo: code
+  });
+  const savedPatient = await paciente.save();
+
+  // 2) Marcar la invitación como usada
+  const inv = await Invitation.findOne({ code });
+  if (!inv) return res.status(404).json({ msg: 'Invitación no existe' });
+  inv.used   = true;
+  inv.usedBy = savedPatient._id;
+  await inv.save();
+
+  // 3) **Aquí enlazamos al paciente con su médico:**
+  const medicoId = inv.issuedBy;
+  await User.updateOne(
+    { _id: medicoId },
+    { $push: { pacientes: savedPatient._id } }
+  );
+
+  // 4) Responder OK
+  res.status(201).json({ msg: 'Usuario registrado' });
 });
 
 // ───────── REGISTRO MÉDICO ─────────
@@ -150,5 +167,34 @@ router.get('/invitations/validate', async (req, res) => {
 
   res.json({ valid: true });
 });
+
+// GET /api/auth/invitations/list
+router.get('/invitations/list', async (req, res) => {
+  try {
+    // 1) Extrae userId del token
+    const token = req.headers.authorization?.split(' ')[1];
+    const { id: userId } = jwt.verify(token, process.env.JWT_SECRET);
+
+    // 2) Busca las invitaciones de este médico y "populate" el paciente
+    const invs = await Invitation
+      .find({ issuedBy: userId })
+      .populate('usedBy', 'nombre email');
+
+    // 3) Mapea al formato deseado
+    const list = invs.map(inv => ({
+      code: inv.code,
+      used: inv.used,
+      paciente: inv.used
+        ? { nombre: inv.usedBy.nombre, email: inv.usedBy.email }
+        : null
+    }));
+
+    return res.json(list);
+  } catch (e) {
+    console.error('[invitations/list] ', e);
+    return res.status(401).json({ msg: 'No autorizado' });
+  }
+});
+
 
 module.exports = router;

@@ -203,26 +203,52 @@ function initMedStep1() {
   });
 }
 
-// 5) Panel de Médico: Generar código de invitación
 async function initPanelMedico() {
   const pCodigo = document.getElementById('codigo');
   const btnGen  = document.getElementById('btnGen');
-  if (!btnGen) return;
-  btnGen.addEventListener('click', async () => {
-    const token = localStorage.getItem('tokenMedico');
+  const token   = localStorage.getItem('tokenMedico');
+  const tableB  = document.querySelector('#invitesTable tbody');
+
+  // Función para recargar la tabla
+  async function loadInvites() {
     try {
-      const res = await fetch('/api/auth/invitations/create', {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` }
+      const res = await fetch('/api/auth/invitations/list', {
+        headers: { Authorization: `Bearer ${token}` }
       });
-      const { code } = await res.json();
-      pCodigo.textContent = code;
-      toast('Código generado');
-    } catch {
-      toast('Error de servidor', false);
+      const data = await res.json();
+      tableB.innerHTML = '';  // limpia filas anteriores
+      data.forEach(inv => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${inv.code}</td>
+          <td>${inv.used ? 'Usado' : 'Pendiente'}</td>
+          <td>${inv.paciente?.nombre || '-'}</td>
+          <td>${inv.paciente?.email  || '-'}</td>
+        `;
+        tableB.appendChild(tr);
+      });
+    } catch (e) {
+      console.error('[loadInvites]', e);
     }
+  }
+
+  // 1) Generar código (ya lo tenías)
+  btnGen.addEventListener('click', async () => {
+    const res = await fetch('/api/auth/invitations/create', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    const { code } = await res.json();
+    pCodigo.textContent = code;
+    toast('Código generado');
+    // 2) Vuelve a cargar la tabla para que aparezca la nueva fila
+    await loadInvites();
   });
+
+  // 3) Al abrir la página, carga la tabla inicialmente
+  await loadInvites();
 }
+
 
 // 6) Dashboard Paciente (por implementar)
 function initDashboardPaciente() {
