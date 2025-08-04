@@ -43,20 +43,35 @@ router.post('/register-paciente', async (req, res) => {
 
 // ───────── REGISTRO MÉDICO ─────────
 router.post('/register-medico', async (req, res) => {
+  console.log('[register-medico] body:', req.body);
+
   const { nombre, email, password, tel, esp, matricula } = req.body;
   if (!nombre || !email || !password || !tel || !esp || !matricula) {
     return res.status(400).json({ msg: 'Faltan datos obligatorios' });
   }
+
   const hash = await bcrypt.hash(password, 10);
-  const user = new User({
-    nombre, email, password: hash,
-    role: 'medico', tel, esp, matricula
+
+  const medico = new User({
+    nombre,
+    email,
+    password: hash,
+    role: 'medico',
+    tel,
+    esp,
+    matricula,
   });
+
   try {
-    await user.save();
-    res.status(201).json({ msg: 'Médico registrado con éxito' });
+    const saved = await medico.save();
+    console.log('[register-medico] guardado:', saved);
+    return res.status(201).json({
+      msg: 'Médico registrado con éxito',
+      medicoId: saved._id
+    });
   } catch (e) {
-    res.status(400).json({ msg: e.message });
+    console.error('[register-medico] error guardando:', e);
+    return res.status(400).json({ msg: e.message });
   }
 });
 
