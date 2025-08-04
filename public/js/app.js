@@ -35,31 +35,97 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
+async function initPanelMedico() {
+  const pCodigo = document.getElementById('codigo');
+  const btnGen  = document.getElementById('btnGen');
+  const btnCop  = document.getElementById('btnCopiar');
+  const token   = localStorage.getItem('tokenMedico');
+
+  btnGen.addEventListener('click', async () => {
+  const token = localStorage.getItem('tokenMedico');
+  const res   = await fetch('/api/auth/invitations/create', {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${token}` }
+  });
+  const { code } = await res.json();
+  pCodigo.textContent = code;
+  toast('Código generado');
+});
+}
+
 // ───────── PACIENTE – REGISTRO CON CÓDIGO ─────────
-function initCrearCuenta() {
-  const form = document.getElementById('frmCrear');
-  form.addEventListener('submit', e => {
+async function initCrearCuenta() {
+  const form        = document.getElementById('frmCrear');
+  const inputNombre = form.nombre;
+  const inputEmail  = form.email;
+  const inputPass   = form.pass;
+  const inputRepass = form.repass;
+  const inputCode   = document.getElementById('code');
+  const btnValidate = document.getElementById('btnValidate');
+  const btnSubmit   = document.getElementById('btnSubmit');
+
+  let codeValidated = false;
+
+  // 1) Validar código contra la API
+  btnValidate.addEventListener('click', async () => {
+    const code = inputCode.value.trim();
+    if (!code) return toast('Ingresá un código', false);
+
+    try {
+      const res  = await fetch(
+        `/api/auth/invitations/validate?code=${encodeURIComponent(code)}`
+      );
+      const data = await res.json();
+
+      if (res.ok && data.valid) {
+        toast('Código válido');
+        codeValidated            = true;
+        btnValidate.textContent  = '✅ Validado';
+        inputCode.readOnly       = true;
+        btnSubmit.disabled       = false;
+      } else {
+        toast(data.msg || 'Código inválido', false);
+      }
+    } catch {
+      toast('Error de conexión', false);
+    }
+  });
+
+  // 2) Enviar formulario solo si el código ya fue validado
+  form.addEventListener('submit', async e => {
     e.preventDefault();
-    const email = form.email.value.trim();
-    const pass = form.pass.value;
-    const code = form.code.value.trim();
+    if (!codeValidated) return toast('Primero validá el código', false);
 
-    if (!email || !pass || !code)
-      return goto("codigo-o-datos-invalidos.html");
+    const nombre   = inputNombre.value.trim();
+    const email    = inputEmail.value.trim();
+    const password = inputPass.value;
+    const repass   = inputRepass.value;
+    const code     = inputCode.value.trim();
 
-    let vinculos = JSON.parse(localStorage.getItem('vinculos') || '[]');
-    let vinculo = vinculos.find(v => v.codigo === code && v.estado === "pendiente");
+    if (!nombre || !email || !password || !repass) {
+      return toast('Completá todos los campos', false);
+    }
+    if (password !== repass) {
+      return toast('Las contraseñas no coinciden', false);
+    }
 
-    if (!vinculo) return goto("codigo-o-datos-invalidos.html");
+    try {
+      const res2 = await fetch('/api/auth/register-paciente', {
+        method: 'POST',
+        headers: { 'Content-Type':'application/json' },
+        body: JSON.stringify({ nombre, email, password, code })
+      });
+      const data2 = await res2.json();
 
-    db.addUser({ email, pass, role: 'paciente', codeVinculo: code });
-
-    vinculo.pacienteEmail = email;
-    vinculo.estado = "confirmado";
-    localStorage.setItem('vinculos', JSON.stringify(vinculos));
-
-    toast('Registro exitoso');
-    goto('dashboard-paciente.html');
+      if (res2.ok) {
+        toast('Registro exitoso');
+        goto('/iniciar-sesion-paciente.html');
+      } else {
+        toast(data2.msg, false);
+      }
+    } catch {
+      toast('Error de servidor', false);
+    }
   });
 }
 
@@ -217,3 +283,5 @@ function initPanelMedico() {
 function initDashboardPaciente() {
   // Para mostrar vínculos en el futuro
 }
+
+

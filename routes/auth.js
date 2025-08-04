@@ -1,9 +1,10 @@
 // routes/auth.js
-const express = require('express');
-const bcrypt  = require('bcryptjs');
-const jwt     = require('jsonwebtoken');
-const path    = require('path');
-const user    = require(path.join(__dirname, '..', 'models', 'User'));
+const express    = require('express');
+const bcrypt     = require('bcryptjs');
+const jwt        = require('jsonwebtoken');
+const path       = require('path');
+const User       = require(path.join(__dirname, '..', 'models', 'User'));
+const Invitation = require(path.join(__dirname, '..', 'models', 'Invitation'));
 
 const router = express.Router();
 
@@ -96,6 +97,40 @@ router.get('/validar-matricula', (req, res) => {
   }
 
   return res.json({ ok: true, msg: 'Matrícula válida', matricula: match[0] });
+});
+
+/* ——— Helpers para invitaciones ——— */
+function getUserIdFromHeader(req) {
+  const auth = req.headers.authorization?.split(' ');
+  if (!auth || auth[0] !== 'Bearer') throw new Error('No token');
+  return jwt.verify(auth[1], process.env.JWT_SECRET).id;
+}
+
+/* ——— Crear código de invitación ——— */
+// POST /api/auth/invitations/create
+router.post('/invitations/create', async (req, res) => {
+  try {
+    const userId = getUserIdFromHeader(req);
+    const code   = Math.floor(100000 + Math.random()*900000).toString();
+    const inv    = new Invitation({ code, issuedBy: userId });
+    await inv.save();
+    res.json({ code });
+  } catch (e) {
+    res.status(401).json({ msg: e.message });
+  }
+});
+
+/* ——— Validar código de invitación ——— */
+// GET /api/auth/invitations/validate?code=123456
+router.get('/invitations/validate', async (req, res) => {
+  const { code } = req.query;
+  if (!code) return res.status(400).json({ valid: false, msg: 'Falta código' });
+
+  const inv = await Invitation.findOne({ code });
+  if (!inv)      return res.status(404).json({ valid: false, msg: 'Código no existe' });
+  if (inv.used)  return res.status(400).json({ valid: false, msg: 'Código ya usado' });
+
+  res.json({ valid: true });
 });
 
 module.exports = router;
