@@ -9,6 +9,7 @@ const Invitation = require(path.join(__dirname, '..', 'models', 'Invitation'));
 const router = express.Router();
 
 async function doLogin(req, res, expectedRole) {
+  console.log('[login] body:', req.body);
   const { email, password } = req.body;
   const user = await User.findOne({ email });
   if (!user) 
@@ -84,11 +85,13 @@ router.post('/iniciar-sesion-paciente', (req, res) => {
 });
 
 // ───────── LOGIN MÉDICO ─────────
-router.post('/Iniciar-sesion-medico', (req, res) => {  // ruta en minúsculas
-  doLogin(req, res, 'medico').catch(err => {
-    console.error(err);
+router.post('/iniciar-sesion-medico', async (req, res) => {
+  try {
+    await doLogin(req, res, 'medico');
+  } catch (err) {
+    console.error('[login-medico] Error interno:', err.stack || err);
     res.status(500).json({ msg: 'Error de servidor' });
-  });
+  }
 });
 
 // ───────── MÉDICO – VALIDAR MATRÍCULA ─────────
