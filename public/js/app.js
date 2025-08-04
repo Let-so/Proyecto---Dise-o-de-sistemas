@@ -1,61 +1,20 @@
+// public/js/app.js
 
-//app.js
 // ───────── UTILITARIOS ─────────
 function goto(url) {
   window.location.href = url;
 }
-
 function toast(msg, ok = true) {
   alert(msg);
 }
 
-// ───────── RUTAS POR PÁGINA ─────────
-document.addEventListener('DOMContentLoaded', () => {
-  const page = document.body.dataset.page;
+// ───────── INIT FUNCTIONS ─────────
 
-  switch (page) {
-    case 'crear-cuenta':
-      initCrearCuenta();
-      break;
-    case 'login':
-      initLogin();
-      break;
-    case 'med-step1':
-      initMedStep1();
-      break;
-    case 'med-step2':
-      initMedStep2();
-      break;
-    case 'panel-medico':
-      initPanelMedico();
-      break;
-    case 'dashboard-paciente':
-      initDashboardPaciente();
-      break;
-  }
-});
-
-async function initPanelMedico() {
-  const pCodigo = document.getElementById('codigo');
-  const btnGen  = document.getElementById('btnGen');
-  const btnCop  = document.getElementById('btnCopiar');
-  const token   = localStorage.getItem('tokenMedico');
-
-  btnGen.addEventListener('click', async () => {
-  const token = localStorage.getItem('tokenMedico');
-  const res   = await fetch('/api/auth/invitations/create', {
-    method: 'POST',
-    headers: { 'Authorization': `Bearer ${token}` }
-  });
-  const { code } = await res.json();
-  pCodigo.textContent = code;
-  toast('Código generado');
-});
-}
-
-// ───────── PACIENTE – REGISTRO CON CÓDIGO ─────────
+// 1) Registro de Paciente con código
 async function initCrearCuenta() {
   const form        = document.getElementById('frmCrear');
+  if (!form) return;
+
   const inputNombre = form.nombre;
   const inputEmail  = form.email;
   const inputPass   = form.pass;
@@ -66,7 +25,7 @@ async function initCrearCuenta() {
 
   let codeValidated = false;
 
-  // 1) Validar código contra la API
+  // Validar código de invitación
   btnValidate.addEventListener('click', async () => {
     const code = inputCode.value.trim();
     if (!code) return toast('Ingresá un código', false);
@@ -91,7 +50,7 @@ async function initCrearCuenta() {
     }
   });
 
-  // 2) Enviar formulario solo si el código ya fue validado
+  // Envío del formulario
   form.addEventListener('submit', async e => {
     e.preventDefault();
     if (!codeValidated) return toast('Primero validá el código', false);
@@ -112,7 +71,7 @@ async function initCrearCuenta() {
     try {
       const res2 = await fetch('/api/auth/register-paciente', {
         method: 'POST',
-        headers: { 'Content-Type':'application/json' },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ nombre, email, password, code })
       });
       const data2 = await res2.json();
@@ -129,159 +88,168 @@ async function initCrearCuenta() {
   });
 }
 
-// Código para Paciente
-const formP = document.getElementById('iniciarSesionPacienteForm');
-if (formP) {
-  formP.addEventListener('submit', async e => {
-    e.preventDefault();
-    const email    = document.getElementById('emailPaciente').value;
-    const password = document.getElementById('passwordPaciente').value;
-
-    const res = await fetch('/api/auth/iniciar-sesion-paciente', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password })
+// 2) Login de Paciente y Médico
+function initLogin() {
+  // Paciente
+  const formP = document.getElementById('iniciarSesionPacienteForm');
+  if (formP) {
+    formP.addEventListener('submit', async e => {
+      e.preventDefault();
+      const email    = formP.emailPaciente.value.trim();
+      const password = formP.passwordPaciente.value;
+      try {
+        const res = await fetch('/api/auth/iniciar-sesion-paciente', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          localStorage.setItem('tokenPaciente', data.token);
+          goto('/dashboard-paciente.html');
+        } else {
+          toast(data.msg, false);
+        }
+      } catch {
+        toast('Error de servidor', false);
+      }
     });
-    const data = await res.json();
-    if (res.ok) {
-      localStorage.setItem('tokenPaciente', data.token);
-      window.location = '/dashboard-paciente.html';
-    } else {
-      alert(data.msg);
+  }
+
+  // Médico
+  const formM = document.getElementById('iniciarSesionMedicoForm');
+  if (formM) {
+    formM.addEventListener('submit', async e => {
+      e.preventDefault();
+      const email    = formM.emailMedico.value.trim();
+      const password = formM.passwordMedico.value;
+      try {
+        const res = await fetch('/api/auth/iniciar-sesion-medico', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          localStorage.setItem('tokenMedico', data.token);
+          goto('/panel-medico.html');
+        } else {
+          toast(data.msg, false);
+        }
+      } catch {
+        toast('Error de servidor', false);
+      }
+    });
+  }
+}
+
+// 3) Registro de Médico
+async function initRegistroMedico() {
+  const form = document.getElementById('frmMedRegistro');
+  if (!form) return;
+
+  form.addEventListener('submit', async e => {
+    e.preventDefault();
+    const nombre    = form.nombre.value.trim();
+    const email     = form.email.value.trim();
+    const password  = form.pass.value;
+    const tel       = form.tel.value.trim();
+    const esp       = form.esp.value.trim();
+    const matricula = form.matricula.value.trim().toUpperCase();
+
+    if (!nombre||!email||!password||!tel||!esp||!matricula) {
+      return toast('Completá todos los campos', false);
+    }
+    if (!/^MP-\d{5}$/i.test(matricula)) {
+      return toast('Formato de matrícula inválido (MP-12345)', false);
+    }
+
+    try {
+      const res = await fetch('/api/auth/register-medico', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nombre, email, password, tel, esp, matricula })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        toast('Médico registrado con éxito');
+        goto('/iniciar-sesion-medico.html');
+      } else {
+        toast(data.msg, false);
+      }
+    } catch {
+      toast('Error de servidor', false);
     }
   });
 }
 
-// Código para Médico
-const formM = document.getElementById('iniciarSesionMedicoForm');
-if (formM) {
-  formM.addEventListener('submit', async e => {
-    e.preventDefault();
-    const email    = document.getElementById('emailMedico').value;
-    const password = document.getElementById('passwordMedico').value;
-
-    const res = await fetch('/api/auth/Iniciar-sesion-medico', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password })
-    });
-    const data = await res.json();
-    if (res.ok) {
-      localStorage.setItem('tokenMedico', data.token);
-      window.location = '/dashboard-medico.html';
-    } else {
-      alert(data.msg);
-    }
-  });
-}
-// ───────── MÉDICO – VALIDAR MATRÍCULA (solo formato + rango real) ─────────
+// 4) Validar matrícula en registro médico (Local)
 function initMedStep1() {
   const form = document.getElementById('frmMatricula');
-  if (!form) return;  // Si no existe el formulario, no hace nada
-
+  if (!form) return;
   form.addEventListener('submit', e => {
     e.preventDefault();
-
     const matRaw = form.matricula.value;
     const mat    = matRaw.trim().toUpperCase();
-
-    // 1) Validación de formato: MP-12345
     if (!/^MP-\d{5}$/i.test(mat)) {
       return toast('Formato de matrícula: MP-12345', false);
     }
-
-    // 2) Validación por rango real (1–207 475)
-    const numero = Number(mat.split('-')[1]);
-    if (Number.isNaN(numero) || numero < 1 || numero > 207475) {
-      // Número fuera de rango → página de matrícula inválida
-      window.location.href = '/matricula-invalida.html';
-      return;
+    const num = Number(mat.split('-')[1]);
+    if (isNaN(num) || num < 1 || num > 207475) {
+      return goto('/matricula-invalida.html');
     }
-
-    // 3) Matrícula OK: guardamos y avanzamos
     sessionStorage.setItem('matriculaTmp', mat);
-    window.location.href = '/registro-medico-form.html';
+    goto('/registro-medico-form.html');
   });
 }
 
-// Al cargarse el DOM, detecta la página y llama solo al init correspondiente
+// 5) Panel de Médico: Generar código de invitación
+async function initPanelMedico() {
+  const pCodigo = document.getElementById('codigo');
+  const btnGen  = document.getElementById('btnGen');
+  if (!btnGen) return;
+  btnGen.addEventListener('click', async () => {
+    const token = localStorage.getItem('tokenMedico');
+    try {
+      const res = await fetch('/api/auth/invitations/create', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const { code } = await res.json();
+      pCodigo.textContent = code;
+      toast('Código generado');
+    } catch {
+      toast('Error de servidor', false);
+    }
+  });
+}
+
+// 6) Dashboard Paciente (por implementar)
+function initDashboardPaciente() {
+  // Aquí puedes fetch '/api/paciente/profile' y mostrar datos
+}
+
+// ───────── MONTAJE PRINCIPAL ─────────
 document.addEventListener('DOMContentLoaded', () => {
   const page = document.body.dataset.page;
-  if (page === 'med-step1') {
-    initMedStep1();
+  switch (page) {
+    case 'crear-cuenta':
+      initCrearCuenta();
+      break;
+    case 'login':
+      initLogin();
+      break;
+    case 'registro-medico':
+      initRegistroMedico();
+      break;
+    case 'med-step1':
+      initMedStep1();
+      break;
+    case 'panel-medico':
+      initPanelMedico();
+      break;
+    case 'dashboard-paciente':
+      initDashboardPaciente();
+      break;
   }
-  // Más inits para otras páginas en el futuro...
 });
-
-
-// ───────── MÉDICO – REGISTRAR DATOS ─────────
-function initMedStep2() {
-  const form = document.getElementById('frmMedDatos');
-  form.addEventListener('submit', e => {
-    e.preventDefault();
-
-    const data = {
-      nombre: form.nombre.value.trim(),
-      email: form.email.value.trim(),
-      tel: form.tel.value.trim(),
-      pass: form.pass.value,
-      esp: form.esp.value.trim(),
-      matricula: sessionStorage.getItem('matriculaTmp')
-    };
-
-    if (Object.values(data).some(v => !v))
-      return goto("datos-medico-invalidos.html");
-
-    db.addUser({
-      email: data.email,
-      pass: data.pass,
-      role: 'medico',
-      nombre: data.nombre,
-      tel: data.tel,
-      esp: data.esp,
-      matricula: data.matricula
-    });
-
-    toast("Registro exitoso");
-    goto("panel-medico.html");
-  });
-}
-
-// ───────── PANEL MÉDICO – GENERAR Y GUARDAR CÓDIGO ─────────
-function initPanelMedico() {
-  const pCodigo   = document.getElementById('codigo');
-  const btnGen    = document.getElementById('btnGen');
-  const btnCopiar = document.getElementById('btnCopiar');
-  const spanOk    = document.getElementById('copiado');
-
-  const medico = JSON.parse(localStorage.getItem('logged'));
-
-  btnGen.addEventListener('click', () => {
-    const nuevo = Math.floor(100000 + Math.random() * 900000).toString();
-    pCodigo.textContent = nuevo;
-
-    let vinculos = JSON.parse(localStorage.getItem("vinculos") || "[]");
-    vinculos.push({
-      codigo: nuevo,
-      medicoEmail: medico.email,
-      pacienteEmail: null,
-      estado: "pendiente"
-    });
-    localStorage.setItem("vinculos", JSON.stringify(vinculos));
-    toast("Código generado y guardado");
-  });
-
-  btnCopiar.addEventListener('click', () => {
-    navigator.clipboard.writeText(pCodigo.textContent).then(() => {
-      spanOk.style.display = 'inline';
-      setTimeout(() => spanOk.style.display = 'none', 1200);
-    });
-  });
-}
-
-// ───────── DASHBOARD PACIENTE (VACÍO DE MOMENTO) ─────────
-function initDashboardPaciente() {
-  // Para mostrar vínculos en el futuro
-}
-
-
