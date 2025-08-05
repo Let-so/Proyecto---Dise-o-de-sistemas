@@ -17,6 +17,17 @@
       <button type="submit" class="btn-primary">Ingresar</button>
     </form>
   </div>
-  <script src="/js/app.js"></script>
+  <script >
+  document.addEventListener('DOMContentLoaded', () => {
+    const params  = new URLSearchParams(window.location = '/dashboard-paciente.html');
+    const emailIn = params.get('email');
+    const passIn  = params.get('pass');
+    if (emailIn && passIn) {
+      document.getElementById('emailPaciente').value    = emailIn;
+      document.getElementById('passwordPaciente').value = passIn;
+    }
+  });
+  src="/js/app.js"
+</script>
 </body>
 </html>
