@@ -5,29 +5,31 @@
   <title>Iniciar sesión</title>
   <link rel="stylesheet" href="styles.css" />
   <link rel="icon" href="/favicon.ico" />
-
-
 </head>
 <body data-page="login">
   <div class="container">
     <h2>Iniciar Sesión</h2>
     <form id="frmLogin">
-      <input type="email" name="email" placeholder="Correo electrónico" required />
-      <input type="password" name="pass" placeholder="Contraseña" required />
+   
+      <input id="emailPaciente"    name="email" type="email"    placeholder="Correo electrónico" required />
+      <input id="passwordPaciente" name="pass"  type="password" placeholder="Contraseña"       required />
       <button type="submit" class="btn-primary">Ingresar</button>
     </form>
   </div>
-  <script >
-  document.addEventListener('DOMContentLoaded', () => {
-    const params  = new URLSearchParams(window.location = '/dashboard-paciente.html');
-    const emailIn = params.get('email');
-    const passIn  = params.get('pass');
-    if (emailIn && passIn) {
-      document.getElementById('emailPaciente').value    = emailIn;
-      document.getElementById('passwordPaciente').value = passIn;
-    }
-  });
-  src="/js/app.js"
-</script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const params  = new URLSearchParams(window.location.search);
+      const emailIn = params.get('email');
+      const passIn  = params.get('pass');
+      if (emailIn && passIn) {
+        document.getElementById('emailPaciente').value    = emailIn;
+        document.getElementById('passwordPaciente').value = passIn;
+      }
+    });
+  </script>
+
+  <script src="/js/app.js"></script>
 </body>
 </html>
+
