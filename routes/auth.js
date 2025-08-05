@@ -94,12 +94,15 @@ router.post('/register-medico', async (req, res) => {
 });
 
 // ───────── LOGIN PACIENTE ─────────
-router.post('/iniciar-sesion-paciente', (req, res) => {
-  doLogin(req, res, 'paciente').catch(err => {
-    console.error(err);
+router.post('/iniciar-sesion-paciente', async (req, res) => {
+  try {
+    await doLogin(req, res, 'paciente');
+  } catch (err) {
+    console.error('[login-paciente] Error interno:', err.stack || err);
     res.status(500).json({ msg: 'Error de servidor' });
-  });
+  }
 });
+
 
 // ───────── LOGIN MÉDICO ─────────
 router.post('/iniciar-sesion-medico', async (req, res) => {
