@@ -215,6 +215,45 @@ router.get('/paciente/profile', async (req, res) => {
   });
 });
 
+// GET /api/auth/paciente/profile
+// Header: Authorization: Bearer <tokenPaciente>
+router.get('/paciente/profile', async (req, res) => {
+  try {
+    // 1) extraer y verificar JWT
+    const auth = req.headers.authorization?.split(' ');
+    if (!auth || auth[0] !== 'Bearer') {
+      return res.status(401).json({ msg: 'No autorizado' });
+    }
+    const payload = jwt.verify(auth[1], process.env.JWT_SECRET);
+
+    // 2) buscar datos del paciente
+    const paciente = await User.findById(payload.id).lean();
+    if (!paciente || paciente.role !== 'paciente') {
+      return res.status(403).json({ msg: 'Acceso denegado' });
+    }
+
+    // 3) buscar la invitación usada para hallar al médico
+    const inv = await Invitation
+      .findOne({ usedBy: paciente._id })
+      .populate('issuedBy', 'nombre email')
+      .lean();
+
+    const medico = inv
+      ? { nombre: inv.issuedBy.nombre, email: inv.issuedBy.email }
+      : null;
+
+    // 4) responder con perfil
+    return res.json({
+      nombre: paciente.nombre,
+      email:  paciente.email,
+      medico
+    });
+  } catch (e) {
+    console.error('[paciente/profile] ', e);
+    return res.status(500).json({ msg: 'Error interno del servidor' });
+  }
+});
+
 
 
 module.exports = router;

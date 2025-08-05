@@ -250,28 +250,38 @@ async function initPanelMedico() {
 }
 
 
-// 6) Dashboard Paciente 
+// ───────── DASHBOARD PACIENTE ─────────
 async function initDashboardPaciente() {
   const token = localStorage.getItem('tokenPaciente');
+  if (!token) {
+    // si no hay token, lo mandamos a login
+    return goto('/iniciar-sesion-paciente.html');
+  }
+
   try {
-    const res = await fetch('/api/paciente/profile', {
+    const res = await fetch('/api/auth/paciente/profile', {
       headers: { 'Authorization': `Bearer ${token}` }
     });
-    const { nombre, medico } = await res.json();
-    document.getElementById('miNombre').textContent  = nombre;
-    if (medico) {
-      document.getElementById('medNombre').textContent = medico.nombre;
-      const a = document.getElementById('medEmail');
-      a.textContent = medico.email;
-      a.href        = `mailto:${medico.email}`;
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.msg || 'Error al cargar perfil');
+    }
+
+    // Pinta los datos en el HTML
+    document.getElementById('miNombre').textContent  = data.nombre;
+    document.getElementById('miEmail').textContent   = data.email;
+    if (data.medico) {
+      document.getElementById('medNombre').textContent = data.medico.nombre;
+      document.getElementById('medEmail').textContent  = data.medico.email;
     } else {
       document.getElementById('medNombre').textContent = '—';
+      document.getElementById('medEmail').textContent  = '—';
     }
-  } catch (e) {
-    console.error(e);
+  } catch (err) {
+    console.error('[dashboard-paciente]', err);
+    toast(err.message || 'Error de servidor', false);
   }
 }
-
 
 // ───────── MONTAJE PRINCIPAL ─────────
 document.addEventListener('DOMContentLoaded', () => {
