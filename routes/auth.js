@@ -196,5 +196,25 @@ router.get('/invitations/list', async (req, res) => {
   }
 });
 
+// GET /api/paciente/profile
+router.get('/paciente/profile', async (req, res) => {
+  const token = req.headers.authorization?.split(' ')[1];
+  const { id } = jwt.verify(token, process.env.JWT_SECRET);
+  // Busca al paciente
+  const paciente = await User.findById(id).populate({
+    path: 'invitations',
+    select: 'code used issuedBy',
+    populate: { path: 'issuedBy', select: 'nombre email' }
+  });
+  res.json({
+    nombre: paciente.nombre,
+    email: paciente.email,
+    medico: paciente.invitations
+      .filter(inv => inv.used)
+      .map(inv => inv.issuedBy)[0]  // asumimos 1 a 1
+  });
+});
+
+
 
 module.exports = router;

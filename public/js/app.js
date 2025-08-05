@@ -250,10 +250,28 @@ async function initPanelMedico() {
 }
 
 
-// 6) Dashboard Paciente (por implementar)
-function initDashboardPaciente() {
-  // Aquí puedes fetch '/api/paciente/profile' y mostrar datos
+// 6) Dashboard Paciente 
+async function initDashboardPaciente() {
+  const token = localStorage.getItem('tokenPaciente');
+  try {
+    const res = await fetch('/api/paciente/profile', {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    const { nombre, medico } = await res.json();
+    document.getElementById('miNombre').textContent  = nombre;
+    if (medico) {
+      document.getElementById('medNombre').textContent = medico.nombre;
+      const a = document.getElementById('medEmail');
+      a.textContent = medico.email;
+      a.href        = `mailto:${medico.email}`;
+    } else {
+      document.getElementById('medNombre').textContent = '—';
+    }
+  } catch (e) {
+    console.error(e);
+  }
 }
+
 
 // ───────── MONTAJE PRINCIPAL ─────────
 document.addEventListener('DOMContentLoaded', () => {
