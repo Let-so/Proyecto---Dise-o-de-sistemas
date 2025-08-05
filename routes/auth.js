@@ -199,54 +199,34 @@ router.get('/invitations/list', async (req, res) => {
   }
 });
 
-// GET /api/paciente/profile
-router.get('/paciente/profile', async (req, res) => {
-  const token = req.headers.authorization?.split(' ')[1];
-  const { id } = jwt.verify(token, process.env.JWT_SECRET);
-  // Busca al paciente
-  const paciente = await User.findById(id).populate({
-    path: 'invitations',
-    select: 'code used issuedBy',
-    populate: { path: 'issuedBy', select: 'nombre email' }
-  });
-  res.json({
-    nombre: paciente.nombre,
-    email: paciente.email,
-    medico: paciente.invitations
-      .filter(inv => inv.used)
-      .map(inv => inv.issuedBy)[0]  // asumimos 1 a 1
-  });
-});
-
 // GET /api/auth/paciente/profile
-// Header: Authorization: Bearer <tokenPaciente>
 router.get('/paciente/profile', async (req, res) => {
   try {
-    // 1) Extraer y verificar JWT
+    // 1) Verificar que venga el Bearer token
     const auth = req.headers.authorization?.split(' ');
     if (!auth || auth[0] !== 'Bearer') {
       return res.status(401).json({ msg: 'No autorizado' });
     }
     const payload = jwt.verify(auth[1], process.env.JWT_SECRET);
 
-    // 2) Buscar al paciente
+    // 2) Buscar datos básicos del paciente
     const paciente = await User.findById(payload.id).lean();
     if (!paciente || paciente.role !== 'paciente') {
       return res.status(403).json({ msg: 'Acceso denegado' });
     }
 
-    // 3) Buscar la invitación usada y poblar solo issuedBy
+    // 3) Buscar la invitación que usó este paciente
     const inv = await Invitation
       .findOne({ usedBy: paciente._id })
-      .populate('issuedBy', 'nombre email')
+      .populate('issuedBy', 'nombre email')  // poblamos solo al médico
       .lean();
 
-    // 4) Preparar objeto médico (si existe invitación usada)
+    // 4) Montar el objeto médico (si existe invitación usada)
     const medico = inv
       ? { nombre: inv.issuedBy.nombre, email: inv.issuedBy.email }
       : null;
 
-    // 5) Devolver JSON con perfil
+    // 5) Responder con JSON limpio
     return res.json({
       nombre: paciente.nombre,
       email:  paciente.email,
@@ -258,5 +238,57 @@ router.get('/paciente/profile', async (req, res) => {
   }
 });
 
+// GET /api/auth/paciente/profile
+// Header: Authorization: Bearer <tokenPaciente>
+router.get('/paciente/profile', async (req, res) => {
+  try {
+    // 1) Comprobar header y extraer token
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      return res.status(401).json({ msg: 'No autorizado' });
+    }
+    const parts = authHeader.split(' ');
+    if (parts.length !== 2 || parts[0] !== 'Bearer') {
+      return res.status(401).json({ msg: 'Formato de token inválido' });
+    }
+    const token = parts[1];
+
+    // 2) Verificar JWT
+    let payload;
+    try {
+      payload = jwt.verify(token, process.env.JWT_SECRET);
+    } catch (e) {
+      return res.status(401).json({ msg: 'Token inválido o expirado' });
+    }
+
+    // 3) Cargar datos del paciente
+    const paciente = await User.findById(payload.id).lean();
+    if (!paciente || paciente.role !== 'paciente') {
+      return res.status(403).json({ msg: 'Acceso denegado' });
+    }
+
+    // 4) Buscar la invitación usada por este paciente
+    const inv = await Invitation
+      .findOne({ usedBy: paciente._id })
+      .populate('issuedBy', 'nombre email')  // sólo nombre y email del médico
+      .lean();
+
+    // 5) Construir el objeto médico (si existe invitación)
+    const medico = inv
+      ? { nombre: inv.issuedBy.nombre, email: inv.issuedBy.email }
+      : null;
+
+    // 6) Devolver el perfil del paciente
+    return res.json({
+      nombre: paciente.nombre,
+      email:  paciente.email,
+      medico
+    });
+
+  } catch (err) {
+    console.error('[paciente/profile] Error interno:', err);
+    return res.status(500).json({ msg: 'Error interno del servidor' });
+  }
+});
 
 module.exports = router;
