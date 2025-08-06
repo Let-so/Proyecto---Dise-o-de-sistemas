@@ -2,18 +2,72 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Panel Paciente</title>
-  <link rel="stylesheet" href="styles.css" />
-  <link rel="icon" href="/favicon.ico" />
-
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel del Paciente - Sonder</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
-<body data-page="dashboard-paciente">
-  <h1>Bienvenido, <span id="miNombre">cargando…</span></h1>
-  <p>Email: <span id="miEmail">cargando…</span></p>
-  <h2>Tu médico</h2>
-  <p id="medNombre">cargando…</p>
-  <p id="medEmail">cargando…</p>
-  <script src="/js/app.js"></script>
-</body>
+<body>
 
+  <div class="container">
+    <header class="header">
+      <h1>Sonder</h1>
+      <span class="fecha">22 de mayo</span>
+    </header>
+
+    <div class="bluetooth">
+      <button class="bluetooth-btn">🔵 Conectar mi reloj</button>
+    </div>
+
+    <section class="datos-salud">
+      <h2>Datos de salud</h2>
+      <div class="grid">
+        <div class="box"><p>Pasos</p><strong>5,234</strong></div>
+        <div class="box"><p>Calorías</p><strong>250</strong></div>
+        <div class="box"><p>Ritmo cardíaco</p><strong>72 bpm</strong></div>
+        <div class="box"><p>Horas de sueño</p><strong>7h 30m</strong></div>
+        <div class="box"><p>Estrés</p><strong>25</strong></div>
+      </div>
+    </section>
+
+    <section class="medicacion">
+      <h2>Mi medicación</h2>
+      <div class="med">
+        <p>Medicamento A<br><span>100mg - 8:00 AM</span></p>
+        <input type="checkbox">
+      </div>
+      <div class="med">
+        <p>Medicamento B<br><span>50mg - 12:00 PM</span></p>
+        <input type="checkbox">
+      </div>
+      <button class="add-btn">Agregar medicamento</button>
+    </section>
+
+    <section class="estudios">
+      <h2>Mis estudios</h2>
+      <div class="study">
+        <p>Estudio 1</p>
+        <button class="ver-btn">Ver</button>
+      </div>
+      <div class="study">
+        <p>Estudio 2</p>
+        <button class="ver-btn">Ver</button>
+      </div>
+      <button class="add-btn">Agregar estudio</button>
+    </section>
+
+    <section class="ia-chat">
+      <h2>Hablar con mi IA</h2>
+      <button class="ia-btn">🤖 Preguntarle a mi IA</button>
+    </section>
+  </div>
+
+  <nav class="nav">
+    <button class="nav-item active">🏠 Inicio</button>
+    <button class="nav-item">👤 Perfil</button>
+    <button class="nav-item">📅 Citas</button>
+    <button class="nav-item">💬 Mensajes</button>
+    <button class="nav-item">📚 Recursos</button>
+  </nav>
+
+</body>
+</html>

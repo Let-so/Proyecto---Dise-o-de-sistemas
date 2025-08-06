@@ -395,3 +395,162 @@ input[type="range"] {
 .btn-back:hover {
   background-color: #d5d5d5;
 }
+
+/*---Panel paciente---*/
+
+body {
+  margin: 0;
+  font-family: 'Helvetica Neue', sans-serif;
+  background: #f9fbfc;
+  color: #222;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.container {
+  padding: 20px;
+  padding-bottom: 100px;
+  flex: 1;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.header h1 {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.fecha {
+  font-size: 14px;
+  color: #888;
+}
+
+.bluetooth-btn {
+  background: #f0f2f5;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 16px;
+  font-size: 14px;
+  margin-bottom: 20px;
+  cursor: pointer;
+}
+
+h2 {
+  font-size: 16px;
+  margin-bottom: 10px;
+}
+
+.datos-salud .grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.box {
+  background: white;
+  border-radius: 12px;
+  padding: 15px;
+  width: calc(50% - 5px);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.box p {
+  margin: 0;
+  font-size: 13px;
+  color: #666;
+}
+
+.box strong {
+  font-size: 18px;
+  display: block;
+  margin-top: 5px;
+}
+
+.medicacion .med {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: white;
+  border-radius: 12px;
+  padding: 10px 15px;
+  margin-bottom: 10px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.medicacion .med span {
+  font-size: 12px;
+  color: #888;
+}
+
+.estudios .study {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: white;
+  border-radius: 12px;
+  padding: 10px 15px;
+  margin-bottom: 10px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.add-btn {
+  background: #eef1f5;
+  border: none;
+  border-radius: 10px;
+  padding: 10px;
+  font-size: 13px;
+  margin-top: 5px;
+  cursor: pointer;
+}
+
+.ver-btn {
+  background: #e6e6e6;
+  border: none;
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.ia-btn {
+  width: 100%;
+  background: #007bff;
+  color: white;
+  font-weight: bold;
+  border: none;
+  padding: 12px;
+  border-radius: 14px;
+  font-size: 14px;
+  margin-top: 10px;
+  cursor: pointer;
+}
+
+.nav {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  background: white;
+  border-top: 1px solid #ddd;
+  display: flex;
+  justify-content: space-around;
+  padding: 10px 0;
+}
+
+.nav-item {
+  background: none;
+  border: none;
+  font-size: 13px;
+  color: #555;
+  cursor: pointer;
+}
+
+.nav-item.active {
+  color: #007bff;
+  font-weight: bold;
+}
