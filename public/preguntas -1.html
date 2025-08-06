@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+   <link rel="stylesheet" href="styles.css" />
+    <link rel="icon" href="/favicon.ico" />
+  <title>Sonder - Datos Iniciales</title>
+</head>
+<body>
+
+  <div class="container">
+    <h1>Necesitamos hacerte<br>algunas preguntas</h1>
+    <p>Estas respuestas nos ayudan a conocerte mejor<br>y ofrecerte un seguimiento más personalizado.</p>
+
+    <form action="/panel" method="POST"> <!-- O redirección a tu panel real -->
+      <label for="fecha">¿Cuál es tu fecha de nacimiento?</label>
+      <input type="date" id="fecha" name="fecha" required />
+
+      <label for="patologia">¿Cuál es tu patología principal?</label>
+      <select id="patologia" name="patologia" required>
+        <option disabled selected>Seleccionar patología</option>
+        <!-- Estas opciones van a venir del backend según la especialidad del médico -->
+        <option>Trastorno depresivo mayor</option>
+        <option>Trastorno bipolar tipo I</option>
+        <option>Trastorno de ansiedad generalizada</option>
+        <option>TEPT</option>
+        <option>Trastorno límite de la personalidad</option>
+      </select>
+
+      <button type="submit">Continuar</button>
+    </form>
+  </div>
+
+</body>
+</html>

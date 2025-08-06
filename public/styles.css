@@ -243,3 +243,73 @@ tbody tr:hover {
   border: none;
   border-top: 1px solid #ccc;
 }
+
+/*-----preguntas - 1-----*/
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Helvetica Neue', sans-serif;
+      background: radial-gradient(circle, #d4f0f0, #f9faff);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+      max-width: 400px;
+      width: 100%;
+    }
+
+    h1 {
+      font-size: 22px;
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    p {
+      font-size: 14px;
+      text-align: center;
+      margin-bottom: 30px;
+      color: #555;
+    }
+
+    label {
+      font-size: 15px;
+      margin-bottom: 5px;
+      display: block;
+      font-weight: 500;
+    }
+
+    input,
+    select {
+      width: 100%;
+      padding: 12px;
+      border-radius: 12px;
+      border: 1px solid #ccc;
+      margin-bottom: 25px;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+
+    button {
+      width: 100%;
+      background-color: #007aff;
+      color: white;
+      font-weight: bold;
+      border: none;
+      border-radius: 30px;
+      padding: 14px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #005ecf;
+    }
