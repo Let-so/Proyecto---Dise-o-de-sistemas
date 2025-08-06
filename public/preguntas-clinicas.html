@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Preguntas clínicas</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <div class="container">
+    <h2>Preguntas clínicas</h2>
+
+    <form action="/panel" method="POST">
+      <label for="tiempo">¿Cuánto tiempo has sentido de esta manera?</label>
+      <input type="text" id="tiempo" name="tiempo" placeholder="p. ej, 2 semanas" required />
+
+      <label for="gravedad">En una escala del 1 al 10, ¿cuán graves son tus síntomas?</label>
+      <input type="range" id="gravedad" name="gravedad" min="1" max="10" value="5" />
+
+      <label for="medicamento">¿Estás tomando algún medicamento?</label>
+      <select id="medicamento" name="medicamento" required>
+        <option>No</option>
+        <option>Sí</option>
+      </select>
+
+      <label for="ayuda">¿Has buscado ayuda profesional antes?</label>
+      <select id="ayuda" name="ayuda" required>
+        <option>No</option>
+        <option>Sí</option>
+      </select>
+
+      <div class="botones">
+        <button type="button" class="btn-back">← Atrás</button>
+        <button type="submit" class="btn-next">Continuar →</button>
+      </div>
+    </form>
+  </div>
+
+</body>
+</html>
