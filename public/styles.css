@@ -96,43 +96,152 @@ button:active {
 }
 
 /* ──────────────── Panel Paciente ──────────────── */
-.panel {
-  background-color: #fff;
-  padding: 20px;
-  border-radius: 16px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
-  max-width: 480px;
+body {
+  font-family: 'Segoe UI', sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f6f9fc;
+  color: #1c1c1e;
+}
+
+.container {
+  max-width: 400px;
   margin: auto;
+  padding: 20px;
 }
 
-.panel .section {
-  margin-bottom: 2rem;
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-.panel .section h2 {
-  font-size: 1.2rem;
-  margin-bottom: 1rem;
-  color: #222;
+.top-bar h1 {
+  font-size: 24px;
 }
 
-.health-grid {
+.fecha {
+  font-size: 14px;
+  color: #607080;
+}
+
+.bluetooth-btn {
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  background: #e4e9f0;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+.bluetooth-btn img {
+  height: 18px;
+  margin-right: 8px;
+}
+
+h2 {
+  font-size: 18px;
+  margin-top: 24px;
+}
+
+.grid-salud {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 1rem;
+  gap: 12px;
+  margin-top: 12px;
 }
 
-.health-grid .metric {
-  background: #f9f9fb;
+.card {
+  background: white;
   border-radius: 12px;
-  padding: 1rem;
-  text-align: center;
-  font-size: 0.9rem;
+  padding: 16px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
 }
 
-.health-grid .metric strong {
-  display: block;
-  font-size: 1.2rem;
-  margin-top: 0.3rem;
+.card p {
+  font-size: 14px;
+  color: #5a5a5a;
+}
+
+.card h3 {
+  margin-top: 8px;
+  font-size: 20px;
+}
+
+.med-lista .med {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 12px;
+}
+
+.med-lista span {
+  font-size: 13px;
+  color: #607080;
+}
+
+.btn-secundario {
+  margin-top: 12px;
+  width: 100%;
+  padding: 10px;
+  background-color: #e4e9f0;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+.estudio {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 12px;
+}
+
+.btn-ver {
+  background-color: #d4ddea;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-weight: 600;
+}
+
+.ia-chat {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.btn-ia {
+  background-color: #007AFF;
+  color: white;
+  padding: 12px;
+  width: 100%;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+}
+
+.nav-bar {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  background: white;
+  display: flex;
+  justify-content: space-around;
+  border-top: 1px solid #ccc;
+  padding: 10px 0;
+}
+
+.nav-bar a {
+  text-decoration: none;
+  color: #1c1c1e;
+  font-size: 14px;
+}
+
+.nav-bar a.active {
+  font-weight: bold;
+  color: #007AFF;
 }
 
 /* ──────────────── Navegación ──────────────── */
