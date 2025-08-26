@@ -7,3 +7,4 @@ public/Backend/servers/.env
 
 # dependencias
 node_modules/
+secure_uploads/
