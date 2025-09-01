@@ -1,5 +1,22 @@
 // index.js
 
+import 'dotenv/config';
+import express from 'express';
+import helmet from 'helmet';
+import cors from 'cors';
+
+app.set('trust proxy', 1);
+app.use(helmet()); // HSTS y headers seguros (en prod)
+app.use(cors({ origin: ['https://sonder-web.vercel.app/'], credentials: true }));
+app.use(express.json());
+
+// Redirigir http -> https si llega sin TLS (útil detrás de proxy)
+app.use((req, res, next) => {
+  if (req.secure || req.headers['x-forwarded-proto'] === 'https') return next();
+  res.redirect(301, `https://${req.headers.host}${req.url}`);
+});
+
+
 // 1) Carga variables de entorno lo primero
 require('dotenv').config();
 console.log('URI leída:', process.env.MONGO_URI);
