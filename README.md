@@ -1,5 +1,5 @@
 Link al Drive: 
-https://docs.google.com/document/d/1lNj6tSVH0SQldUicDBjXXmPImT1qr-rylwEeEWdYuUM/edit?usp=sharing
+https://drive.google.com/drive/folders/1sw7yKDAxM7myul8njsXSrksdjUU0lVZu?usp=drive_link
 
 Link a la página web:
 https://sonder-web.vercel.app/
