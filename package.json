@@ -1,7 +1,7 @@
 {
   "name": "sonder-project",
   "version": "1.0.0",
-  "description": "Link al Drive: \r https://docs.google.com/document/d/1lNj6tSVH0SQldUicDBjXXmPImT1qr-rylwEeEWdYuUM/edit?usp=sharing",
+  "description": "Link al Drive: https://docs.google.com/document/d/1lNj6tSVH0SQldUicDBjXXmPImT1qr-rylwEeEWdYuUM/edit?usp=sharing",
   "main": "index.js",
   "scripts": {
     "dev": "vercel dev",
@@ -12,8 +12,6 @@
     "type": "git",
     "url": "git+https://github.com/Let-so/Proyecto---Dise-o-de-sistemas.git"
   },
-  "keywords": [],
-  "author": "",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/Let-so/Proyecto---Dise-o-de-sistemas/issues"
@@ -24,9 +22,10 @@
   },
   "dependencies": {
     "bcryptjs": "^3.0.2",
-    "body-parser": "^2.2.0",
+    "cors": "^2.8.5",
     "dotenv": "^17.2.1",
     "express": "^5.1.0",
+    "helmet": "^7.1.0",
     "jest": "^30.0.5",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.16.5",

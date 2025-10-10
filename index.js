@@ -1,54 +1,50 @@
-// index.js
+// index.js  (CommonJS)
 
-import 'dotenv/config';
-import express from 'express';
-import helmet from 'helmet';
-import cors from 'cors';
-
-app.set('trust proxy', 1);
-app.use(helmet()); // HSTS y headers seguros (en prod)
-app.use(cors({ origin: ['https://sonder-web.vercel.app/'], credentials: true }));
-app.use(express.json());
-
-// Redirigir http -> https si llega sin TLS (útil detrás de proxy)
-app.use((req, res, next) => {
-  if (req.secure || req.headers['x-forwarded-proto'] === 'https') return next();
-  res.redirect(301, `https://${req.headers.host}${req.url}`);
-});
-
-
-// 1) Carga variables de entorno lo primero
+// 1) Variables de entorno
 require('dotenv').config();
-console.log('URI leída:', process.env.MONGO_URI);
-console.log('JWT_SECRET:', process.env.JWT_SECRET); 
 
+// 2) Imports
 const express  = require('express');
+const helmet   = require('helmet');
+const cors     = require('cors');
 const path     = require('path');
 const mongoose = require('mongoose');
 
-const app = express();  // ← ahora sí declaras app antes de usarla
+// 3) App
+const app = express();
+app.set('trust proxy', 1);
 
-// 2) Sirve estáticos de /public
-app.use(express.static(path.join(__dirname, 'public')));
-
-// 3) Para parsear JSON (por si luego usas POST)
+// 4) Middlewares base
+app.use(helmet()); // headers seguros
+app.use(cors({
+  origin: ['https://sonder-web.vercel.app'], // sin la barra final
+  credentials: true
+}));
 app.use(express.json());
 
-// 4) Conectar a MongoDB (sin opciones deprecadas en Mongoose 7+)
+// 5) Redirección http -> https (útil detrás de proxy, p.ej. Vercel/NGINX)
+app.use((req, res, next) => {
+  const xfProto = req.headers['x-forwarded-proto'];
+  if (req.secure || xfProto === 'https') return next();
+  return res.redirect(301, `https://${req.headers.host}${req.url}`);
+});
+
+// 6) Estáticos (si los usás)
+app.use(express.static(path.join(__dirname, 'public')));
+
+// 7) Conexión a MongoDB
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => console.log('✔ Conectado a MongoDB'))
   .catch(err => console.error('✖ Error al conectar:', err));
 
-// 5) Rutas de tu API
-// Asegúrate de que auth.js esté en ./routes/auth.js
-//app.use('/api/medico', require('./routes/medico'));
-app.use('/api/auth',   require('./routes/auth'));
+// 8) Rutas
+// app.use('/api/medico', require('./routes/medico'));
+app.use('/api/auth', require('./routes/auth'));
 
-// 6) Levantar servidor
+// 9) Levantar servidor
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log('Servidor en http://localhost:' + PORT));
+app.listen(PORT, () => console.log(`Servidor en http://localhost:${PORT}`));
 
-// 7) Exportar app para poder testear con Supertest
+// 10) Export para tests (Supertest)
 module.exports = app;
-

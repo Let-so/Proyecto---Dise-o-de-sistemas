@@ -1,7 +1,6 @@
 // models/Codigo.js
-import mongoose from 'mongoose';
-
-
+import mongoose from 'mongoose';  //--- Conectarse a una Base de Datos Documental (Ej. MongoDb) 
+                                  
 const { MongoClient, ServerApiVersion } = require('mongodb');
 const uri = "mongodb+srv://sosocardozo17:<db_password>@cluster0.krymp7b.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
 
@@ -42,3 +41,5 @@ const vinculoSchema = new mongoose.Schema({
 });
 
 export const Vinculo = mongoose.model('Vinculo',  vinculoSchema);
+
+
