@@ -2,7 +2,7 @@
 import mongoose from 'mongoose';  //--- Conectarse a una Base de Datos Documental (Ej. MongoDb) 
                                   
 const { MongoClient, ServerApiVersion } = require('mongodb');
-const uri = "mongodb+srv://sosocardozo17:<db_password>@cluster0.krymp7b.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
+const uri = "mongodb+srv://sosocardozo17:UV1uBhkUb8OLJWlE@cluster0.krymp7b.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
 
 
 const codigoSchema = new mongoose.Schema({
