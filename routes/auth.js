@@ -181,13 +181,15 @@ router.get('/invitations/list', async (req, res) => {
     // 2) Busca las invitaciones de este médico y "populate" el paciente
     const invs = await Invitation
       .find({ issuedBy: userId })
+      .sort({ createdAt: -1 })
       .populate('usedBy', 'nombre email');
 
     // 3) Mapea al formato deseado
     const list = invs.map(inv => ({
       code: inv.code,
       used: inv.used,
-      paciente: inv.used
+      createdAt: inv.createdAt,
+      paciente: inv.used && inv.usedBy
         ? { nombre: inv.usedBy.nombre, email: inv.usedBy.email }
         : null
     }));
