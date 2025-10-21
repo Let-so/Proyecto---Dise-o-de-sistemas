@@ -235,7 +235,9 @@ async function initPanelMedico() {
   }
 
   // Función para recargar la tabla
-  async function loadInvites() {
+  async function loadInvites(options = {}) {
+    const { fallbackCode = null } = options;
+    let invites = null;
     try {
       const res = await fetch('/api/auth/invitations/list', {
         headers: { Authorization: `Bearer ${token}` }
@@ -246,18 +248,30 @@ async function initPanelMedico() {
         throw new Error(data.msg || 'No se pudieron cargar las invitaciones');
       }
 
+      invites = Array.isArray(data)
+        ? data
+        : Array.isArray(data?.invitations)
+          ? data.invitations
+          : Array.isArray(data?.invites)
+            ? data.invites
+            : null;
+
+      if (!invites) {
+        throw new Error('Formato de respuesta inesperado');
+      }
+
       tableB.innerHTML = '';
 
-      if (!Array.isArray(data) || data.length === 0) {
+      if (invites.length === 0) {
         tableB.innerHTML = '<tr><td colspan="5">Sin invitaciones aún.</td></tr>';
-        pCodigo.textContent = '---';
+        pCodigo.textContent = fallbackCode || '---';
         if (pacienteCount) {
           pacienteCount.textContent = '0 pacientes vinculados';
         }
       } else {
         let usedCount = 0;
         let latestPendingCode = null;
-        data.forEach(inv => {
+        invites.forEach(inv => {
           if (inv.used) usedCount += 1;
           if (!inv.used && !latestPendingCode) {
             latestPendingCode = inv.code;
@@ -272,14 +286,8 @@ async function initPanelMedico() {
           `;
           tableB.appendChild(tr);
         });
-        if (latestPendingCode) {
-          pCodigo.textContent = latestPendingCode;
-        } else if (data[0]?.code) {
-          // Si todos los códigos ya se usaron, mostramos el más reciente como referencia
-          pCodigo.textContent = data[0].code;
-        } else {
-          pCodigo.textContent = '---';
-        }
+        const newestCode = invites[0]?.code;
+        pCodigo.textContent = latestPendingCode || newestCode || fallbackCode || '---';
         if (pacienteCount) {
           const label = usedCount === 1 ? 'paciente vinculado' : 'pacientes vinculados';
           pacienteCount.textContent = `${usedCount} ${label}`;
@@ -288,12 +296,12 @@ async function initPanelMedico() {
     } catch (e) {
       console.error('[loadInvites]', e);
       tableB.innerHTML = '<tr><td colspan="5">No se pudieron cargar las invitaciones.</td></tr>';
-      pCodigo.textContent = '---';
+      pCodigo.textContent = fallbackCode || '---';
       toast(e.message || 'Error al cargar invitaciones', false);
       return null;
     }
 
-    return true;
+    return invites;
   }
 
   // 1) Generar código (ya lo tenías)
@@ -310,7 +318,7 @@ async function initPanelMedico() {
       }
       pCodigo.textContent = data.code;
       toast('Código generado');
-      await loadInvites();
+      await loadInvites({ fallbackCode: data.code });
     } catch (err) {
       console.error('[createInvite]', err);
       toast(err.message || 'Error al generar el código', false);
