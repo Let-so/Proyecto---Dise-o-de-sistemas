@@ -8,7 +8,7 @@
   ],
   "routes": [
     
-    { "src": "^/api/(.*)$", "dest": "/public/api/$1.js" },
+    { "src": "^/api/(.*)$", "dest": "/public/api/index.js" },
     
     { "src": "^/$",         "dest": "/public/index.html" },
     

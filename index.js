@@ -28,10 +28,12 @@ mongoose
 //app.use('/api/medico', require('./routes/medico'));
 app.use('/api/auth',   require('./routes/auth'));
 
-// 6) Levantar servidor
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log('Servidor en http://localhost:' + PORT));
-
-// 7) Exportar app para poder testear con Supertest
+// 6) Exportar app para poder testear con Supertest o usarlo en serverless
 module.exports = app;
+
+// 7) Levantar servidor únicamente cuando este archivo es el punto de entrada
+if (require.main === module) {
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT, () => console.log('Servidor en http://localhost:' + PORT));
+}
 
