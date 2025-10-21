@@ -250,13 +250,18 @@ async function initPanelMedico() {
 
       if (!Array.isArray(data) || data.length === 0) {
         tableB.innerHTML = '<tr><td colspan="5">Sin invitaciones aún.</td></tr>';
+        pCodigo.textContent = '---';
         if (pacienteCount) {
           pacienteCount.textContent = '0 pacientes vinculados';
         }
       } else {
         let usedCount = 0;
+        let latestPendingCode = null;
         data.forEach(inv => {
           if (inv.used) usedCount += 1;
+          if (!inv.used && !latestPendingCode) {
+            latestPendingCode = inv.code;
+          }
           const tr = document.createElement('tr');
           tr.innerHTML = `
             <td>${inv.code}</td>
@@ -267,6 +272,14 @@ async function initPanelMedico() {
           `;
           tableB.appendChild(tr);
         });
+        if (latestPendingCode) {
+          pCodigo.textContent = latestPendingCode;
+        } else if (data[0]?.code) {
+          // Si todos los códigos ya se usaron, mostramos el más reciente como referencia
+          pCodigo.textContent = data[0].code;
+        } else {
+          pCodigo.textContent = '---';
+        }
         if (pacienteCount) {
           const label = usedCount === 1 ? 'paciente vinculado' : 'pacientes vinculados';
           pacienteCount.textContent = `${usedCount} ${label}`;
@@ -275,8 +288,12 @@ async function initPanelMedico() {
     } catch (e) {
       console.error('[loadInvites]', e);
       tableB.innerHTML = '<tr><td colspan="5">No se pudieron cargar las invitaciones.</td></tr>';
+      pCodigo.textContent = '---';
       toast(e.message || 'Error al cargar invitaciones', false);
+      return null;
     }
+
+    return true;
   }
 
   // 1) Generar código (ya lo tenías)
