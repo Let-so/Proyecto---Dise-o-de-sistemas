@@ -206,8 +206,33 @@ function initMedStep1() {
 async function initPanelMedico() {
   const pCodigo = document.getElementById('codigo');
   const btnGen  = document.getElementById('btnGen');
+  const btnCopy = document.getElementById('btnCopiar');
+  const msgCopy = document.getElementById('copiado');
+  const pacienteCount = document.getElementById('pacienteCount');
   const token   = localStorage.getItem('tokenMedico');
   const tableB  = document.querySelector('#invitesTable tbody');
+
+  if (!pCodigo || !btnGen || !tableB) {
+    console.warn('Elementos del panel médico no encontrados');
+    return;
+  }
+
+  if (!token) {
+    toast('Tu sesión expiró. Iniciá sesión nuevamente.', false);
+    return goto('/iniciar-sesion-medico.html');
+  }
+
+  function formatDate(dateStr) {
+    const date = new Date(dateStr);
+    if (Number.isNaN(date.getTime())) return '-';
+    return date.toLocaleString('es-AR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  }
 
   // Función para recargar la tabla
   async function loadInvites() {
@@ -216,34 +241,87 @@ async function initPanelMedico() {
         headers: { Authorization: `Bearer ${token}` }
       });
       const data = await res.json();
-      tableB.innerHTML = '';  // limpia filas anteriores
-      data.forEach(inv => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td>${inv.code}</td>
-          <td>${inv.used ? 'Usado' : 'Pendiente'}</td>
-          <td>${inv.paciente?.nombre || '-'}</td>
-          <td>${inv.paciente?.email  || '-'}</td>
-        `;
-        tableB.appendChild(tr);
-      });
+
+      if (!res.ok) {
+        throw new Error(data.msg || 'No se pudieron cargar las invitaciones');
+      }
+
+      tableB.innerHTML = '';
+
+      if (!Array.isArray(data) || data.length === 0) {
+        tableB.innerHTML = '<tr><td colspan="5">Sin invitaciones aún.</td></tr>';
+        if (pacienteCount) {
+          pacienteCount.textContent = '0 pacientes vinculados';
+        }
+      } else {
+        let usedCount = 0;
+        data.forEach(inv => {
+          if (inv.used) usedCount += 1;
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${inv.code}</td>
+            <td>${formatDate(inv.createdAt)}</td>
+            <td>${inv.used ? 'Usado' : 'Pendiente'}</td>
+            <td>${inv.paciente?.nombre || '-'}</td>
+            <td>${inv.paciente?.email  || '-'}</td>
+          `;
+          tableB.appendChild(tr);
+        });
+        if (pacienteCount) {
+          const label = usedCount === 1 ? 'paciente vinculado' : 'pacientes vinculados';
+          pacienteCount.textContent = `${usedCount} ${label}`;
+        }
+      }
     } catch (e) {
       console.error('[loadInvites]', e);
+      tableB.innerHTML = '<tr><td colspan="5">No se pudieron cargar las invitaciones.</td></tr>';
+      toast(e.message || 'Error al cargar invitaciones', false);
     }
   }
 
   // 1) Generar código (ya lo tenías)
   btnGen.addEventListener('click', async () => {
-    const res = await fetch('/api/auth/invitations/create', {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${token}` }
-    });
-    const { code } = await res.json();
-    pCodigo.textContent = code;
-    toast('Código generado');
-    // 2) Vuelve a cargar la tabla para que aparezca la nueva fila
-    await loadInvites();
+    btnGen.disabled = true;
+    try {
+      const res = await fetch('/api/auth/invitations/create', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (!res.ok || !data.code) {
+        throw new Error(data.msg || 'No se pudo generar el código');
+      }
+      pCodigo.textContent = data.code;
+      toast('Código generado');
+      await loadInvites();
+    } catch (err) {
+      console.error('[createInvite]', err);
+      toast(err.message || 'Error al generar el código', false);
+    } finally {
+      btnGen.disabled = false;
+    }
   });
+
+  if (btnCopy && navigator.clipboard) {
+    btnCopy.addEventListener('click', async () => {
+      const code = pCodigo.textContent?.trim();
+      if (!code || code === '---') return;
+      try {
+        await navigator.clipboard.writeText(code);
+        if (msgCopy) {
+          msgCopy.style.display = 'inline';
+          setTimeout(() => { msgCopy.style.display = 'none'; }, 2000);
+        }
+      } catch (err) {
+        console.error('[copyCode]', err);
+        toast('No se pudo copiar el código', false);
+      }
+    });
+  } else if (btnCopy) {
+    btnCopy.addEventListener('click', () => {
+      toast('Copiar no es compatible con este navegador', false);
+    });
+  }
 
   // 3) Al abrir la página, carga la tabla inicialmente
   await loadInvites();
