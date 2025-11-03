@@ -1,17 +1,26 @@
 {
   "version": 2,
+  "env": {
+    "MONGO_URI": "@mongo_uri_preview",
+    "JWT_SECRET": "@jwt_secret_preview"
+  },
+  "git": {
+    "deploymentProtection": {
+      "preview": false
+    }
+  },
   "builds": [
-    
+
     { "src": "public/api/**/*.js", "use": "@vercel/node" },
-   
+
     { "src": "public/**/*",        "use": "@vercel/static" }
   ],
   "routes": [
-    
+
     { "src": "^/api/(.*)$", "dest": "/public/api/index.js" },
-    
+
     { "src": "^/$",         "dest": "/public/index.html" },
-    
+
     { "src": "^/(.*)$",     "dest": "/public/$1" }
   ]
 }
