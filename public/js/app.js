@@ -32,7 +32,7 @@ async function initCrearCuenta() {
 
     try {
       const res  = await fetch(
-        `/api/auth/invitations/validate?code=${encodeURIComponent(code)}`
+        `${API_BASE}/api/auth/invitations/validate?code=${encodeURIComponent(code)}`
       );
       const data = await res.json();
 
@@ -208,13 +208,19 @@ async function initPanelMedico() {
   const btnGen  = document.getElementById('btnGen');
   const token   = localStorage.getItem('tokenMedico');
   const tableB  = document.querySelector('#invitesTable tbody');
+  const API_BASE = window.location.origin || (window.location.protocol + '//' + window.location.host);
 
   // Función para recargar la tabla
   async function loadInvites() {
     try {
-      const res = await fetch('/api/auth/invitations/list', {
+      const res = await fetch(`${API_BASE}/api/auth/invitations/list`, {
         headers: { Authorization: `Bearer ${token}` }
       });
+      if (!res.ok) {
+        const txt = await res.text();
+        console.error('[loadInvites] bad response', res.status, txt);
+        return;
+      }
       const data = await res.json();
       tableB.innerHTML = '';  // limpia filas anteriores
       data.forEach(inv => {
@@ -234,15 +240,26 @@ async function initPanelMedico() {
 
   // 1) Generar código (ya lo tenías)
   btnGen.addEventListener('click', async () => {
-    const res = await fetch('/api/auth/invitations/create', {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${token}` }
-    });
-    const { code } = await res.json();
-    pCodigo.textContent = code;
-    toast('Código generado');
-    // 2) Vuelve a cargar la tabla para que aparezca la nueva fila
-    await loadInvites();
+    try {
+      const res = await fetch(`${API_BASE}/api/auth/invitations/create`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (!res.ok) {
+        const txt = await res.text();
+        console.error('[createInvite] bad response', res.status, txt);
+        toast(txt || 'Error al generar código', false);
+        return;
+      }
+      const { code } = await res.json();
+      pCodigo.textContent = code;
+      toast('Código generado');
+      // 2) Vuelve a cargar la tabla para que aparezca la nueva fila
+      await loadInvites();
+    } catch (e) {
+      console.error('[createInvite] error', e);
+      toast('Error de servidor', false);
+    }
   });
 
   // 3) Al abrir la página, carga la tabla inicialmente
