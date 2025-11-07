@@ -83,9 +83,13 @@ router.post('/register-medico', async (req, res) => {
   try {
     const saved = await medico.save();
     console.log('[register-medico] guardado:', saved);
+    // Al registrar el médico, también devolvemos un token JWT para login inmediato
+    const payload = { id: saved._id, nombre: saved.nombre, role: saved.role };
+    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '2h' });
     return res.status(201).json({
       msg: 'Médico registrado con éxito',
-      medicoId: saved._id
+      medicoId: saved._id,
+      token
     });
   } catch (e) {
     console.error('[register-medico] error guardando:', e);
