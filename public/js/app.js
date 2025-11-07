@@ -172,8 +172,27 @@ async function initRegistroMedico() {
       });
       const data = await res.json();
       if (res.ok) {
-        toast('Médico registrado con éxito');
-        goto('/iniciar-sesion-medico.html');
+        toast('Médico registrado con éxito — iniciando sesión...');
+        // Intentar login automático para redirigir directamente al panel
+        try {
+          const loginRes = await fetch('/api/auth/iniciar-sesion-medico', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+          });
+          const loginData = await loginRes.json();
+          if (loginRes.ok && loginData.token) {
+            localStorage.setItem('tokenMedico', loginData.token);
+            goto('/panel-medico.html');
+          } else {
+            // Si no podemos loguear automáticamente, enviar al login manual
+            toast(loginData.msg || 'Registro OK. Iniciá sesión manualmente.', true);
+            goto('/iniciar-sesion-medico.html');
+          }
+        } catch (err) {
+          console.error('[auto-login] error', err);
+          goto('/iniciar-sesion-medico.html');
+        }
       } else {
         toast(data.msg, false);
       }
