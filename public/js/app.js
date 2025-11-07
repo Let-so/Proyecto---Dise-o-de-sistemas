@@ -207,8 +207,15 @@ async function initPanelMedico() {
   const pCodigo = document.getElementById('codigo');
   const btnGen  = document.getElementById('btnGen');
   const token   = localStorage.getItem('tokenMedico');
-  const tableB  = document.querySelector('#invitesTable tbody');
+  const tableB  = document.getElementById('historial-body') || document.querySelector('#invitesTable tbody');
+  const pacienteCountEl = document.getElementById('pacienteCount');
   const API_BASE = window.location.origin || (window.location.protocol + '//' + window.location.host);
+
+  // Si no hay token, redirigimos al login del médico
+  if (!token) {
+    console.warn('[initPanelMedico] no tokenMedico found — redirecting to login');
+    return goto('/iniciar-sesion-medico.html');
+  }
 
   // Función para recargar la tabla
   async function loadInvites() {
@@ -219,14 +226,34 @@ async function initPanelMedico() {
       if (!res.ok) {
         const txt = await res.text();
         console.error('[loadInvites] bad response', res.status, txt);
+        // si devuelve HTML, avisar
         return;
       }
       const data = await res.json();
       tableB.innerHTML = '';  // limpia filas anteriores
+
+      // actualizar contador de pacientes únicos (invitaciones usadas)
+      try {
+        const patients = new Set();
+        data.forEach(i => { if (i.paciente && i.paciente.email) patients.add(i.paciente.email); });
+        if (pacienteCountEl) pacienteCountEl.textContent = patients.size ? `${patients.size} paciente(s)` : '0 pacientes';
+      } catch (e) {
+        console.warn('[loadInvites] paciente count error', e);
+      }
+
+      if (!Array.isArray(data) || data.length === 0) {
+        const trEmpty = document.createElement('tr');
+        trEmpty.innerHTML = `<td colspan="5">No hay invitaciones</td>`;
+        tableB.appendChild(trEmpty);
+        return;
+      }
+
       data.forEach(inv => {
         const tr = document.createElement('tr');
+        const fecha = inv.createdAt ? new Date(inv.createdAt).toLocaleString() : (inv.createdAtISO ? new Date(inv.createdAtISO).toLocaleString() : '-');
         tr.innerHTML = `
           <td>${inv.code}</td>
+          <td>${fecha}</td>
           <td>${inv.used ? 'Usado' : 'Pendiente'}</td>
           <td>${inv.paciente?.nombre || '-'}</td>
           <td>${inv.paciente?.email  || '-'}</td>
@@ -238,8 +265,10 @@ async function initPanelMedico() {
     }
   }
 
-  // 1) Generar código (ya lo tenías)
+  // 1) Generar código (ya lo tenías) con protección contra doble click
   btnGen.addEventListener('click', async () => {
+    if (!btnGen) return;
+    btnGen.disabled = true;
     try {
       const res = await fetch(`${API_BASE}/api/auth/invitations/create`, {
         method: 'POST',
@@ -252,15 +281,38 @@ async function initPanelMedico() {
         return;
       }
       const { code } = await res.json();
-      pCodigo.textContent = code;
+      if (pCodigo) pCodigo.textContent = code || '---';
       toast('Código generado');
       // 2) Vuelve a cargar la tabla para que aparezca la nueva fila
       await loadInvites();
     } catch (e) {
       console.error('[createInvite] error', e);
       toast('Error de servidor', false);
+    } finally {
+      btnGen.disabled = false;
     }
   });
+
+  // Copiar código
+  const btnCopiar = document.getElementById('btnCopiar');
+  const spanCopiado = document.getElementById('copiado');
+  if (btnCopiar) {
+    btnCopiar.addEventListener('click', async () => {
+      const text = pCodigo ? pCodigo.textContent.trim() : '';
+      if (!text || text === '---') return toast('No hay código para copiar', false);
+      try {
+        await navigator.clipboard.writeText(text);
+        if (spanCopiado) {
+          spanCopiado.style.display = 'inline';
+          setTimeout(() => spanCopiado.style.display = 'none', 2000);
+        }
+      } catch (err) {
+        console.warn('[copy] clipboard failed, fallback', err);
+        const tmp = document.createElement('textarea'); tmp.value = text; document.body.appendChild(tmp); tmp.select(); document.execCommand('copy'); document.body.removeChild(tmp);
+        if (spanCopiado) { spanCopiado.style.display = 'inline'; setTimeout(() => spanCopiado.style.display = 'none', 2000); }
+      }
+    });
+  }
 
   // 3) Al abrir la página, carga la tabla inicialmente
   await loadInvites();

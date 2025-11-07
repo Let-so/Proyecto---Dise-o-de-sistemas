@@ -30,17 +30,20 @@
 <body data-page="panel-medico">
   <div class="container">
     <div class="profile">
-      <img src="doctor-avatar.png" alt="avatar" />
-      <p id="pacienteCount">Cargando pacientes...</p>
+      <img src="https://www.google.com/url?sa=i&url=https%3A%2F%2Fes.vexels.com%2Fpng-svg%2Fvista-previa%2F151710%2Ficono-de-trazo-de-avatar-de-doctor&psig=AOvVaw3BbbvYDclWaVOggHNmyr_g&ust=1762575127821000&source=images&cd=vfe&opi=89978449&ved=0CBUQjRxqFwoTCMCG456W35ADFQAAAAAdAAAAABAE" alt="avatar" />
+  <p id="pacienteCount">0 pacientes</p>
     </div>
 
     <h2>Invitar paciente</h2>
     <button id="btnGen" class="btn-primary">Generar código</button>
 
-    <div class="code-box">
-      <p id="codigo">---</p>
-      <button id="btnCopiar" class="btn-link">Copiar</button>
-      <span id="copiado" class="copied">✓ Copiado!</span>
+    <div class="code-box" aria-live="polite">
+      <label for="codigo" class="sr-only">Código de invitación</label>
+      <pre id="codigo" class="code-display">---</pre>
+      <div>
+        <button id="btnCopiar" class="btn-link" type="button">Copiar</button>
+        <span id="copiado" class="copied" role="status" aria-live="polite">✓ Copiado!</span>
+      </div>
     </div>
 
     <h3>Historial de códigos</h3>
@@ -61,5 +64,8 @@
   </div>
 
   <script src="/js/app.js"></script>
+  <noscript>
+    <div style="padding:1rem; background:#ffecec; color:#a33; margin:1rem 0; border-radius:4px;">Esta página requiere JavaScript para funcionar correctamente. Por favor activá JavaScript en tu navegador.</div>
+  </noscript>
 </body>
 </html>
